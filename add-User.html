@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<link href='css/index-add.css' type='text/css' rel="stylesheet">
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script src="js/uc-ui.js" type="text/javascript"></script>
+<script src="js/json2.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/jquery.md5.js"></script>
+<script type="text/javascript" src="js/simplePagination/jquery.simplePagination.js"></script>
+<link href="js/simplePagination/simplePagination.css" rel="stylesheet" type="text/css"/>
+
+<meta charset="utf-8">
+<title>视频监控客户端 </title>
+</head>
+<body >
+<div class="add-max">
+   
+     <div class="add-areaMax">
+  
+         <form class="del-form">
+         
+             <table class="add-areaBox">
+           
+                    <tr class="ipt">
+                     	 <th> <span class="force">*</span><span class="ipt-text">用户：</span></th>
+                         <td > <input type="text" id='ipt-passwd' class="add-ipt username" required></td>
+                    </tr>
+                      <tr class="ipt">
+                     	 <th><span class="force">*</span><span class="ipt-text">密码：</span></th>
+                         <td ><input type='password' class="add-ipt passwd1" id='ipt-passwd1' required></td>
+                    </tr>
+                      <tr class="ipt"> 
+                     	 <th><span class="force">*</span><span class="ipt-text">确认密码：</span></th>
+                         <td ><input type="password" class="add-ipt passwd2 " id='ipt-passwd2' required> </td>
+                    </tr>
+            </table>
+        </form>
+       
+    </div>
+</div>
+</body>
+<script>
+  
+
+    function add_user(d,userList){
+		
+		var sessionid= $.cookie("sessionid");
+		var user=$('.username').val();
+		var passwd1=$('.passwd1').val();
+		var passwd2=$('.passwd2').val();
+		if( user.length==0)
+		{
+			layer.tips('请输入用户名','.username');
+			return false;
+		}
+
+		if( passwd1.length==0)
+		{
+			layer.tips('请输入密码','.passwd1');
+			return false;
+		}
+		if( passwd2.length==0)
+		{
+			layer.tips('请再次确认密码','.passwd2')
+			return false;
+		}
+		if(passwd1!=passwd2)
+		{
+			alert("两次输入密码不一致，请重新输入!");
+			return false;
+		}
+        var addUserJson={
+		 "method":"add_user",
+		 "sessionid":sessionid,
+		 "user":user,
+		 "passw":$.md5(passwd1)
+		 }
+		 $.post('/upapi',JSON.stringify(addUserJson),function(date){
+			 if(date['retcode']==0)
+			 {
+				 userList();
+				 return true;
+			 }
+			 else if(date['retcode']==-3004)
+			 {
+				alert("该操作需要管理员用户权限，请切换用户!");
+				 return false;
+			 }
+			 else if(date['retcode']==-3005)
+			 {
+				 alert("用户名无效或已经存在");
+				 return false;
+		     }
+			 else{
+				 alert("未知错误导致添加失败！");
+				 return false;
+				 }
+			
+		});
+	};
+</script>
+
+</html>
