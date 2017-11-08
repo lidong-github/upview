@@ -15,12 +15,17 @@
                <div class="list-top"><span> 未关联设备</span></div>
                <table class="noContec-control">
                   <tr>
-                      <th width="45"><input type="checkbox" class="noContent" ></th>
-                      <th width="45">序号</th>
-                      <th width="260">节点名称</th>
+                      <th width="45" height="30"><input type="checkbox" class="noContent" ></th>
+                      <th width="45" >序号</th>
+                      <th >节点名称</th>
 
                   </tr>
                </table>
+               <div class="noConnec-content">
+                      <div class="no-Connec-list">
+                        <table class="noContec-control" id='noContec-list-show'></table>
+                      </div>
+               </div>
              </div>
              <div class="change-icon">
               <div class='icon-area'>
@@ -32,13 +37,13 @@
                   <div class="list-top"> <span>已关联设备</span></div>
                    <table class="content-control">
                       <tr >
-                          <th width="45"><input type="checkbox"  width="45" class='content-all'></th>
-                          <th >序号</th>
+                          <th width="45" height="30"><input type="checkbox"  width="45" class='content-all'></th>
+                          <th width="45">序号</th>
                           <th >节点名称</th>
     					  <th >组织机构</th>
                       </tr>
                    </table>
-                   <div class="list-tobdy">
+                   <div class="connectList-tobdy">
                      <div class="list-title">
                         <table class="content-control" id="content-list-show"></table>
                      </div>
@@ -54,6 +59,11 @@
 
 
 <script>
+var dlog;
+function switchWindow(d,nodeList){
+	nodeList();
+	d.close();
+	}
 var sessionid=$.cookie('sessionid');
 function getFreeNode(){
 	
@@ -64,17 +74,18 @@ function getFreeNode(){
 	$.post('/upapi',JSON.stringify(params),function(data){
 		if(data['retcode']==0)
 		{
-			$(".td-freenode").empty();
-			 var node=data['node'];
+			$("#noContec-list-show").empty();
+			var node=data['node'];
 			 for(var i=0;i<node.length;++i)
 			 {
 			 var trr = $('<tr class="td-freenode">'
-						+'<td width="45"><input type="checkbox" name="freeNode"/></td>'
+						+'<td width="45" height="30"><input type="checkbox" name="freeNode"/></td>'
 						+'<td width="45">'+(i+1)+'</td>'
 						+'<td name="node" id="'+node[i].id+'">'+node[i].title+'</td>'
 						+'</tr>');
 		
-			$(".content-control").append(trr);
+			$("#noContec-list-show").append(trr);
+			
 		    }
 		}
 		
@@ -84,6 +95,7 @@ function getFreeNode(){
 //已经关联设备
 var title=$.cookie('title');
 function getNode(){
+	
  var params={
 	 'method':'get_node',
 	 'sessionid':sessionid,
@@ -92,18 +104,18 @@ function getNode(){
   $.post('/upapi',JSON.stringify(params),function(data){
 	  if(data['retcode']==0)
 	  {
-		  $('.td-node').empty();
+		  $("#content-list-show").empty();
 		   var node=data['node'];
 			 for(var i=0;i<node.length;++i)
 			 {
 			 var trr = $('<tr class="td-node">'
-						+'<td width="45"><input type="checkbox" name="node"/></td>'
+						+'<td width="45" height="30"><input type="checkbox" name="node"/></td>'
 						+'<td width="45">'+(i+1)+'</td>'
 						+'<td name="title" id="'+node[i].id+'">'+node[i].title+'</td>'
 						+'<td name="dir">'+title +'</td>'
 						+'</tr>');
 		
-			$(".noContec-control").append(trr);
+			$("#content-list-show").append(trr);
 		 }
 	  }
 	  })
@@ -134,8 +146,10 @@ $('.share-control').click(function(){
 		{
 			getFreeNode();
 			getNode();
+			window.parent.nodeList();
 			
 		}
+		
 	})
 })
 //取消
@@ -159,6 +173,7 @@ $('.cancel-control').click(function(){
 		{
 			getFreeNode();
 			getNode();
+			window.parent.nodeList();
 			
 		}
 		})
@@ -177,6 +192,7 @@ $('.content-all').click(function() {
 		else{
 			$(this).parent().parent().removeClass('selectedTr');
 			}
+			
     });
 });
 $('.noContent').live('click',function(){

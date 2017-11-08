@@ -65,6 +65,7 @@ function setImg(){
        
     });
 function nodeFix(d,node,nodeList){
+		
 	var params={
 		'method':'reset_node_info',
 		'sessionid':$.cookie('sessionid'),
@@ -78,10 +79,12 @@ function nodeFix(d,node,nodeList){
 		'new_id':$(".id-ipt").val()
 		
 		}
+	
  $.post('/upapi',JSON.stringify(params),function(data){
 	 if(data['retcode']==0)
 	 {
 		 
+			  layer.msg('修改成功',{offset: 't',icon:5})
 		 nodeList();
 		 d.close();
 	 }

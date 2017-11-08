@@ -155,7 +155,7 @@ input.all-user {margin-top:2px;}
 /*监控资源*/
 .content-control{width:100%;}
 .mon-resourceBax{width: 100%;height: 99%;overflow: hidden;top: 2px;bottom: 0;left: 1px;right: 0;position: absolute;}
-.mon-resourceContent{position: absolute;width:98%;height:97%;overflow:hidden; border: 1px solid #b2c6e2;margin-left:10px;margin-top:10px;min-width:1000px;border-radius:5px;}
+.mon-resourceContent{position: absolute;width:98%;height:97%;overflow:hidden; border: 1px solid #b2c6e2;margin-left:10px;margin-top:10px;min-width:1000px;border-radius:5px;min-height: 758px;}
 #tree{width:220px;height:100%;float:left;border:1px solid #999;}
 #tree-node{width:200px;height:737px;margin-left:11px;position:absolute;} 
 #li-show{cursor:pointer;width:37px;height:30px;background:url(../img/li-show.png) no-repeat;display:inline-block;float:left;clear:both;background-size:cover;}
@@ -228,6 +228,10 @@ span.move.show-tree{background:url(../img/bs_right.png) no-repeat;width:10px;hei
 .delNode-box{width:100%;height:100%;overflow:hidden;overflow:hidden;}
 .del-nodeText{margin-top:22px;margin-left:80px;overflow:hidden;font-weight:normal;font-size:14px;color: rgb(34, 114, 173);}
 /*关联*/
+#noContec-list-show{overflow:auto;}
+.noConnec-content{overflow:auto;height:341px;}
+.connectList-tobdy{    height: 341px;
+    overflow: auto;}
 .connected-max{top:0;left:0;bottom:0;right:0;position:absolute;}
 .connected-box{width:100%;height:100%;overflow:hidden;}
 .connected-content{width:100%;height:400px;margin-top:7px;}
@@ -237,7 +241,7 @@ span.move.show-tree{background:url(../img/bs_right.png) no-repeat;width:10px;hei
 .connected-content .change-icon{width:100px;height:400px;float:left;}
 .change-icon .icon-area {margin-top: 180px; margin-left: 16px;cursor:pointer;line-height:45px;}
 .connected-content .connected-list{width:350px;height:400px;float:left;border: 1px solid #b2c6e2;border-radius:4px;}
- table{border-collapse:collapse;}
+ table{border-collapse:collapse;width:100%;}
 .noConnected-list table tr th{border-collapse:collapse; border-right:1px solid #b2c6e2;border-bottom:1px solid #b2c6e2;font-weight:normal;font-size:14px;}
 .connected-list table tr th{border-collapse:collapse; border-right:1px solid #b2c6e2;border-bottom:1px solid #b2c6e2;font-weight:normal;font-size:14px;    background: #dbe8fa;}
 

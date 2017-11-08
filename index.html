@@ -159,7 +159,7 @@ var fns = [];
 function setUpTree(){
 	
 	 var treeJson={
-	  "method" :'get_all_node',
+	  "method" :'get_dir',
 	  "sessionid":$.cookie('sessionid')
 	  }
 	  $.post('/upapi',JSON.stringify(treeJson),function(date){
@@ -167,7 +167,7 @@ function setUpTree(){
 	  if(date["retcode"]==0) 
 		  {
 			  
-			  var node=date["node"];
+			  var node=date["dir"];
 			
 			  /*for(var i=0;i<node.length;i++)
 			  {

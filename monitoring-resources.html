@@ -144,10 +144,11 @@ $('.del').live('click',function(){
 $('.fix').live('click',function(){
 	var cecks = $(".mon-list-title").find("tr").find(":checkbox[checked='checked']");
 	var id = cecks.parent().parent().find("td[name='title']").attr("id");
+	
 	updateId=id;
 	if(cecks.length==0 || cecks.length>1)
 	{
-		layer.msg('请选择数据',{offset:7,icon:0});
+		layer.msg('请选择一条数据',{offset:7,icon:0});
 		return false;
 	}
 	var dia_log = {
@@ -160,6 +161,7 @@ $('.fix').live('click',function(){
 			    }	
 		}
 		d = dialog(dia_log);
+		
 	})
 //批量添加 
 $('.add-together').live('click',function(){
@@ -177,15 +179,18 @@ $('.add-together').live('click',function(){
 	})
 //关联
 $('.correlation').live('click',function(){
-	//todo
 	var dia_log = {
 			"width":"900",	
 			"height":"500",
 			"title":"关联",
 			"url":"connected.html",
+			save:function(){
+				d.iframe.contentWindow.switchWindow(d,nodeList);
+				}
 			
 		}
 		d = dialog(dia_log);
+		
 	})
 //分页
 var cp=1;//当前页
