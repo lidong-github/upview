@@ -1,0 +1,599 @@
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<head>
+<title>test page for upsms web api</title>
+
+
+<!-- <script type="text/javascript"> -->
+	
+	 <!--   <script type="text/javascript" src="js/jquery/jquery.min.js"></script>  -->
+	<!--	<script type="text/javascript" src="js/jquery/jquery.json.min.js"></script> -->
+		
+	
+		<script type="text/javascript" src="upview.js"></script>
+		
+		 <script language="javascript" type="text/javascript" src="jquery-1.11.2.js"></script>
+		<script type="text/javascript" src="jquery.md5.js"></script>
+	<script type="text/javascript" src="dist/jquery.cookie.js"></script>
+	<script type="text/javascript" src="dist/jquery.json.min.js"></script>
+	
+		<link rel="stylesheet" href="zTree_v3-master/css/demo.css" type="text/css">
+	<link rel="stylesheet" href="zTree_v3-master/css/zTreeStyle/zTreeStyle.css" type="text/css">	
+
+	
+	<script type="text/javascript" src="zTree_v3-master/js/jquery.ztree.core-3.5.js"></script>
+	<script type="text/javascript" src="zTree_v3-master/js/jquery.ztree.excheck-3.5.js"></script>
+	<script type="text/javascript" src="zTree_v3-master/js/jquery.ztree.exedit-3.5.js"></script>
+<!--  /*  <link href="jBox-0.3.2/Source/jBox.css" rel="stylesheet"> -->
+<!--    <script type="text/javascript" src="jBox-0.3.2/Source/jBox.min.js"></script> -->
+
+</head>
+
+
+	
+    
+
+    <script>
+	var zTreeObj;
+	var select_dir;
+	function zTreeOnMouseDown(event, treeId, treeNode) 
+	{
+     //   alert(treeNode.tId + ", " + treeNode.name  + ", " + treeNode["title"]);
+    };
+	function zTreeOnClick(event, treeId, treeNode) 
+	{
+	    if(treeNode.isParent)
+		{
+		    select_dir = treeNode.id;
+			return;
+		}
+		var rtsp_addr = "rtsp://" +GetHostAddr() + "/" + treeNode.id;
+		$("#rtsp_addr").text(rtsp_addr);//???????? 
+		var div = $("#pre_view");
+		div.empty();
+		if(is_pc())
+		{
+		    pc_play(treeNode);
+		}
+		else
+		{
+		    mobile_play(treeNode);
+		}
+    };
+    var wsavc1;
+	function GetWebSocketUrl()
+	   {
+	        var addr = GetHostAddr();
+			var url;
+			if('https:' == document.location.protocol)
+			{
+			    url = "wss://";
+			}
+			else
+			{
+			    url = "ws://";
+			}
+			url += addr;
+			url += "/upview";
+			return url;
+	   }
+	function pc_play(treeNode)
+	{	
+	    var div = $("#pre_view");
+		div.empty();
+		var str;
+		str = "<"
+		div.append("<canvas id='plugin0' type='application/x-upview' style='width:100%;height:100%'>???????????canvans </canvas>");
+		var id = treeNode.id;
+		var addr = GetHostAddr();
+		var canvas = document.getElementById('plugin0');
+		var uri = GetWebSocketUrl();
+		var opt = {};
+		opt.id = id;
+		opt.url = GetHostAddr();
+		opt.canvas = canvas;
+		opt.user = GetUser();
+		opt.passw = GetPassw();
+		opt.stype = getstype();
+	    if(null != wsavc1)
+		{
+			wsavc1.Stop();
+		}
+		wsavc1 = new UpViewPlayer(opt);
+	}
+	
+	function mobile_play(treeNode)
+	{
+	    pc_play(treeNode);
+		alert("mobile_play");
+		return;
+	}
+	
+	
+	      function ptzright(speed) 
+       {
+           try 
+           {
+               wsavc1.PtzRight(speed);
+           } 
+           catch (e) 
+           {
+               alert(e.message);
+           }
+       }
+       function ptzleft(speed) 
+       {
+           try 
+           {
+               wsavc1.PtzLeft(speed);
+           } 
+           catch (e) 
+           {
+               alert(e.message);
+           }
+       }
+        function ptzdown(speed) 
+       {
+           try 
+           {
+               wsavc1.PtzDown(speed);
+           } 
+           catch (e) 
+           {
+               alert(e.message);
+           }
+       }
+        function ptzup(speed) 
+       {
+           try 
+           {
+               wsavc1.PtzUp(speed);
+           } 
+           catch (e) 
+           {
+               alert(e.message);
+           }
+       }
+	
+	function zTreeOnDblClick(event, treeId, treeNode)
+	{
+	    if(treeNode.isParent)
+		{
+		    return;
+		}
+		var div = $("#pre_view");
+		div.empty();
+		if(is_pc())
+		{
+		    pc_play(treeNode);
+		}
+		else
+		{
+		    mobile_play(treeNode);
+		}
+  //      alert(treeNode.id);
+    };
+	function DelDir(treeNode)
+	{
+	    var obj = {};
+	    obj['method'] = "del_dir";
+        obj['sessionid'] = LoginID();
+		obj['id'] = treeNode.id;
+		var jsonstr = $.toJSON(obj);
+        $.post("/upapi",jsonstr,rec_data);	
+	}
+	function DelNode(treeNode)
+	{
+	    var obj = {};
+	    obj['method'] = "del_node";
+        obj['sessionid'] = LoginID();
+		obj['id'] = treeNode.id;
+		var jsonstr = $.toJSON(obj);
+        $.post("/upapi",jsonstr,rec_data);	
+	}
+	function zTreeOnRemove(event, treeId, treeNode) 
+	{
+	    if(treeNode.isParent)
+		{
+		    DelDir(treeNode);
+		}
+         else
+        {
+		     DelNode(treeNode);
+		}		 
+    }
+	
+	function ChanDirTitle(treeNode)
+	{
+	    var obj = {};
+	    obj['method'] = "change_dir_title";
+        obj['sessionid'] = LoginID();
+		obj['id'] = treeNode.id;
+		obj['title'] = treeNode.title;
+		var jsonstr = $.toJSON(obj);
+        $.post("/upapi",jsonstr,rec_data);
+	}
+	
+	function ChanNodeTitle(treeNode)
+	{
+	    var obj = {};
+	    obj['method'] = "chnodetitle";
+        obj['sessionid'] = LoginID();
+		obj['id'] = treeNode.id;
+		obj['title'] = treeNode.title;
+		var jsonstr = $.toJSON(obj);
+        $.post("/upapi",jsonstr,rec_data);
+	}
+    function zTreeOnRename(event, treeId, treeNode, isCancel) 
+	{
+	    if(isCancel)
+		{
+		    return;
+		}
+		if(treeNode.isParent)
+		{
+		    ChanDirTitle(treeNode);
+		}
+		else
+		{
+		ChanNodeTitle(treeNode);
+		}
+    }
+
+	function OnGetNode(data, status)
+	{
+	    if("success" != status)
+		{
+		    alert(start);
+		    return;
+		}
+		if("success" != data.ret)
+		{
+		    alert(data.ret);
+		    return;
+		}
+		var nodes = data["node"];
+		var pid   = data["pid"];
+		for(var i=0; i<nodes.length; i++)  
+        {  
+            nodes[i]["pId"] = nodes[i]["pid"];
+			nodes[i]["isParent"] = false;
+        }  
+		var tree = $.fn.zTree.getZTreeObj("tree");
+		var treeNodes = tree.getNodesByParam("id", pid, null);
+		if(0 == treeNodes.length)
+		{
+		    return;
+		}
+		var treeNode = treeNodes[0];
+		tree.addNodes(treeNode,nodes,false);
+	}
+	function zTreeBeforeExpand(treeId, treeNode) 
+	{
+	    if(treeNode.isGetNode)
+		{
+		    return;
+		}
+	    var obj = {};
+	    obj['method'] = "get_node";
+        obj['sessionid'] = LoginID();
+		obj['id'] = treeNode.id;
+		var jsonstr = $.toJSON(obj);
+        $.post("/upapi",jsonstr,OnGetNode);
+		treeNode["isGetNode"] = true;
+        return true;
+    };
+
+
+	setting = {		
+		callback: 
+		{
+		    onMouseDown: zTreeOnMouseDown,
+			onDblClick: zTreeOnDblClick,
+			onClick: zTreeOnClick,
+			beforeExpand: zTreeBeforeExpand
+	    },
+		data:
+		{
+		    key:
+			{
+			    name:"title"
+			},
+			simpleData: 
+			{
+			    enable: true,
+			    idKey: "id",
+			    pIdKey: "pId",
+			    rootPId: ""
+		    }
+		},
+		edit:
+		{
+		    enable: true,
+		    showRemoveBtn: true,
+		    removeTitle: "??????"
+		}
+	};
+	zTreeNodes = [];
+    function GetHostAddr()
+	{
+	    //????????????磺 http://localhost:8080/Tmall/index.jsp 
+        var curWwwPath=window.document.location.href; 
+        //??????????????????磺/Tmall/index.jsp 
+        //var pathName=window.document.location.pathname; 
+		var pathName;
+		if('https:' == document.location.protocol)
+		{
+		    pathName = curWwwPath.substring(8);
+		}
+		else
+		{
+		    pathName = curWwwPath.substring(7);
+		}
+        var pos=pathName.indexOf("/"); 
+        //?????????????磺 http://localhost:8080 
+        var localhostPaht=pathName.substring(0,pos); 
+		return localhostPaht;
+	}
+    function is_pc()
+	{
+         var os = new Array("Android","iPhone","Windows Phone","iPod","BlackBerry","MeeGo","SymbianOS","iPad");  // ???????????????????????????????
+        var info = navigator.userAgent;
+        var len = os.length;
+        for (var i = 0; i < len; i++)
+        {
+            if (info.indexOf(os[i]) > 0)
+	        {
+                return false;
+            }
+        }
+        return true;
+    }
+	
+	function LoginID()
+	{
+	    return $.cookie("login_id");
+	}
+	function GetUser()
+	{
+	    return $.cookie("login_user");
+	}
+	function GetPassw()
+	{
+	    return $.cookie("login_passw");
+	}
+	function rec_logout(data, status)
+	{
+  	    return;
+	}
+	function rec_login(data, status)
+	{
+  	    var ret = data["ret"];
+	    if("success" != ret)
+		{
+		   alert("login failed status = " + ret);
+		}
+		var login = data["sessionid"];
+		var jsonstr = $.toJSON(data);
+		var method = data["method"];
+		 $.cookie("login_id", login); 
+	    GetNodes();
+	}
+	function rec_data(data, status)
+	{
+	   var jsonstr = $.toJSON(data);
+	   var method = data["method"];
+	   var ret    = data["ret"];
+       alert(method + " : " + ret);
+	}
+	
+	function Login()
+	{
+	    var jsonObj = {};
+	    jsonObj['method'] = "login";
+        jsonObj['user'] = $("#login_user").val();
+	    jsonObj['passw'] = $.md5($("#login_passw").val());
+	    var jsonstr = $.toJSON(jsonObj);
+        $.post("/upapi",jsonstr,rec_login);		
+	}
+	function Logout()
+	{
+	    var jsonObj = {};
+	    jsonObj['method'] = "logout";
+        jsonObj['sessionid'] = LoginID();
+	    var jsonstr = $.toJSON(jsonObj);
+        $.post("/upapi",jsonstr,rec_logout);	
+        window.location.href="/index.html";		
+	}
+	function Adduser()
+	{
+	    var obj = {};
+	    obj['method'] = "add_user";
+        obj['sessionid'] = LoginID();
+		obj['user'] = $("#login_user").val();
+		obj['passw'] = $.md5($("#login_passw").val());
+	    var jsonstr = $.toJSON(obj);
+        $.post("/upapi",jsonstr,rec_data);	
+	}
+	function Deluser()
+	{
+	    var obj = {};
+	    obj['method'] = "del_user";
+        obj['sessionid'] = LoginID();
+		obj['user'] = $("#login_user").val();
+	    var jsonstr = $.toJSON(obj);
+        $.post("/upapi",jsonstr,rec_data);	
+	}
+	function ChangePassw()
+	{
+	    var obj = {};
+	    obj['method'] = "change_passw";
+        obj['sessionid'] = LoginID();
+		obj['old_passw'] = $.md5($("#login_passw").val());
+		obj['new_passw'] = $.md5($("#new_passw").val());
+	    var jsonstr = $.toJSON(obj);
+        $.post("/upapi",jsonstr,rec_data);	
+	}
+	function OnGetNodes(data, status)
+	{
+	    if("success" != status)
+		{
+		    alert(start);
+		    return;
+		}
+		if("success" != data.ret)
+		{
+		    window.location.href="index.html";
+		    alert("??????");
+		    return;
+		}
+		var tree = $("#tree");
+		if(tree)
+		{
+		    tree.empty();
+		}
+		var nodes = data["node"];
+		for(var i=0; i<nodes.length; i++)  
+        {  
+			nodes[i]["isParent"] = false;
+        }  
+		$.fn.zTree.init(tree, setting, nodes);
+		
+	}
+	function GetNodes()
+	{
+	    var obj = {};
+	    obj['method'] = "get_all_node";
+        obj['sessionid'] = LoginID();
+	    var jsonstr = $.toJSON(obj);
+        $.post("/upapi",jsonstr,OnGetNodes);	
+	}
+	
+	function AddDir()
+	{
+	    var obj = {};
+		obj['method'] = "add_dir";
+		obj['sessionid'] = LoginID();
+		obj['pid'] = select_dir;
+		obj['title'] = $("#dir_title").val();
+		var jsonstr = $.toJSON(obj);
+		$.post("/upapi",jsonstr,rec_data);
+		GetDir();
+	}
+	function OnAddNode(data, status)
+	{
+	    getSeconds();
+	}
+	function AddNode()
+	{
+	    var obj = {};
+		obj['method'] = "add_node";
+		obj['sessionid'] = LoginID();
+		obj['type'] = $("#node_type").val();
+		obj['addr'] = $("#node_addr").val();
+		obj['user'] = $("#node_user").val();
+		obj['passw'] = $("#node_passw").val();
+		obj['chanid'] = $("#node_chanid").val();
+		obj['title'] = $("#node_title").val();
+		var jsonstr = $.toJSON(obj);
+		$.post("/upapi",jsonstr,OnAddNode);
+		GetNodes();
+	}
+	function Ondlgtest()
+	{
+	   // Drag with title
+//       new jBox('Modal', {
+//        width: 200,
+//        title: 'jBox',
+ //       overlay: false,
+//        content: 'Drag me around by using the title',
+//        draggable: 'title',
+//        repositionOnOpen: false,
+//        repositionOnContent: false
+//    });
+	}
+	function getstype()
+	{
+        var value='main';
+        var radio=document.getElementsByName("stype");
+        for(var i=0;i<radio.length;i++)
+		{
+            if(radio[i].checked==true)
+			{
+                value=radio[i].value;
+                break;
+            }
+        }
+       return value;
+    }
+	
+	
+	function ready()
+	{
+	    $("#login").click(Login);
+	    $("#logout").click(Logout);
+		$("#add_user").click(Adduser);
+		$("#del_user").click(Deluser);
+		$("#change_passw").click(ChangePassw);
+		$("#get_dir").click(GetNodes);
+		$("#add_dir").click(AddDir);
+		$("#add_node").click(AddNode);
+//		$("#dlogtest").click(Ondlgtest);
+		zTreeObj = $.fn.zTree.init($("#tree"), setting, zTreeNodes);
+        GetNodes();		
+	}
+    $(document).ready(ready);
+    </script>
+<body>
+ <a href="/UpViewWeb.exe">pc端控件下载</a>
+ <br />
+ <a href="./main2.html">跳转到内部测试</a>
+  <br />
+  本页面为《视频监控流媒体网关》视频播放，测试页面
+  <br />目前pc端浏览器需要<a href="/UpViewWeb.exe">下载控件</a>安装后才能播放视频<br />
+  andriod手机、苹果手机、andriod平板、苹果平板，不需要安装任何插件即可进行视频播放，但存在十秒左右延迟<br />
+  网关使用插件技术可兼容多厂商设备<br />
+  网关支持hls流媒体协议，方便被移动设备网页浏览，方便将传统视频监控，通过网页对外发布，集成到微信等<br />
+  网关提供pc端js调用多浏览器插件，方便web集成传统视频监控<br />
+  网关提供rtsp流转换功能，可将传统视频监控，转换为标准rtsp流，方便使用标准rtsp协议访问传统视频监控视频。<br />
+  <p><a href="mailto:907843@qq.com">测试bug请给我写邮件</a></p><br />
+  <INPUT TYPE="button" value="登出" id="logout"/>
+  <br /><br />
+  <INPUT TYPE="button" value="刷新列表" id="get_dir"/>
+  <br/>
+  <font>rtsp播放地址:   </font>
+  
+  <font color="red" id="rtsp_addr" ></font>
+  <br /><br />
+  类型：<input type="text" value="hik" id="node_type" />
+  地址：<input type="text" value="192.168.0.248" id="node_addr" />
+  用户名：<input type="text" value="admin" id="node_user" />
+  密码：<input type="text" value="12345" id="node_passw" />
+  通道号：<input type="text" value="1" id="node_chanid" />
+  标题：<input type="text" value="8楼会议室" id="node_title" />
+  <INPUT TYPE="button" value="添加节点" id="add_node"/>
+  <br />
+  单击以下列表节点，播放监控实时视频
+  <br />
+  <br />
+<input type="radio" name="stype" value="main" checked="checked"/>主码流  
+<input type="radio" name="stype" value="sub"/>子码流
+<input type="radio" name="stype" value="mobile"/>移动设备码流
+<canvas id='plugin0'  style='width:100%;height:100%'>canvans buzhichi</canvas>
+  <br />
+      <br />
+    <INPUT TYPE="button" value="上" onmousedown="javascript:ptzup(5)" onmouseup="javascript:ptzup(0)">
+    <INPUT TYPE="button" value="下" onmousedown="javascript:ptzdown(5)" onmouseup="javascript:ptzdown(0)">
+    <INPUT TYPE="button" value="左" onmousedown="javascript:ptzleft(5)" onmouseup="javascript:ptzleft(0)">
+    <INPUT TYPE="button" value="右" onmousedown="javascript:ptzright(5)" onmouseup="javascript:ptzright(0)">
+    <br />
+  <div class="zTreeDemoBackground left" style="display:inline-block;*display:inline;vertical-align:top;">
+		<ul id="tree" class="ztree" style="margin-top:0px;"></ul>
+   </div>
+  <div  id="pre_view" style="width:704px;height:576px;display:inline-block;*display:inline; background-color:black; " >
+  </object>
+  </div>
+  <br />
+  <br />
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+		<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.cookie.js"></script>
+              <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+         <link rel="stylesheet" href="css/mycore.css"/>
+<title>无标题文档</title>
+</head>
+
+<body>
+<div class="delNode-max">
+	<div class="delNode-bix">
+   		
+   	 			<div class="del-nodeText">确定要删除选中节点？</div>
+    </div>
+</div>
+</body>
+<script>
+
+function del_node(d,id,nodeList){
+	var  params={
+		'method':'del_node',
+		'sessionid':$.cookie('sessionid'),
+		'id':id
+	}
+	
+		 $.post('/upapi',JSON.stringify(params),function(data){
+			if(data['retcode']==0)
+			{
+				d.close();
+				nodeList();
+				return true;
+				
+			}
+		})
+}
+</script>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+     <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+    <link rel="stylesheet" href="css/mycore.css"/>
+     <script type="text/javascript" src="js/jquery.cookie.js"></script>
+</head>
+
+<body>
+   <div class="video-setMax">
+      <div class="video-setBox">
+      		<div class="video-setContent">
+              <div class='video-setTitle'><span>视频分析应用平台设置</span></div>
+               <div class="video-setIpt">
+                   
+                   <div class="up-name"><span class="red-color">*</span>
+                   上级平台名称：<input type="text" required class="ipt name-ipt"></div>
+                   <div class="up-address"><span class="red-color">*</span>
+                   上级平台地址：<input type="text" required  class="ipt addr-ipt"></div>
+                    <div class="is-off"><span class="red-color">*</span>是否启用
+                     <input  type="radio"  name="Choice" value="true" color="#0c9" class='is'>是
+                     <input  type="radio"  name="Choice" value="false" class='no'>否
+                    
+                    </div>
+                     <div class="Preservation" type="button" value="Preservation-button">保存</div>
+               </div>
+            </div>
+      </div>
+   </div>
+</body>
+<script>
+ function getVideoMsg(){
+	 var params={
+		 'method':'get_ana_save_url',
+		 'sessionid':$.cookie('sessionid')
+		 }
+		 $.post('/upapi',JSON.stringify(params),function(data){
+			 if(data['retcode']==0)
+			 {
+				 $('.name-ipt').val(data['title']);
+				 $('.addr-ipt').val(data['save_url']);
+				 
+				 if(data['is_enable']==true)
+				 {
+					 $('.is').attr('checked','checked');
+				 }
+				 else{$('.no').attr('checked','checked');}
+			}
+			else{layer.msg('获取失败', {
+					  offset: 't',
+					  anim: 6
+					});}
+			 })
+	 }
+  $(document).ready(function(){
+	  getVideoMsg();
+	  })
+function setVideoMsg(){
+	var is_enable=$('.is-off input[name="Choice"]:checked').val();
+	
+	if(is_enable=='true')
+	{
+	  is_enable=true;
+	}
+	else{is_enable=false;}
+	var save_url=$('.addr-ipt').val();
+	var title=$('.name-ipt').val();
+	var params={
+		'method':'set_ana_save_url',
+		'sessionid':$.cookie('sessionid'),
+		'is_enable':is_enable,
+		'save_url':save_url,
+		'title':title
+		}
+	$.post('/upapi',JSON.stringify(params),function(data){
+		
+		  if(data['retcode']==0)
+		  {
+			   layer.msg("设置成功",{offset:'t',icon:6});
+		  }
+		  else{layer.msg("设置失败",{offset:'t',icon:5})}
+		})
+	}
+   $('.Preservation').click(function(){
+	   
+	    setVideoMsg();
+	   })
+</script>
+</html>

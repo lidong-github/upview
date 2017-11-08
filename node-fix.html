@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+ 		<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.cookie.js"></script>
+         <link rel="stylesheet" href="css/mycore.css"/>
+         <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+<title>视频监控融合平台</title>
+</head>
+
+<body>
+    <div class="nodeFix-max">
+      <div class="nodeFix-box">
+        <div class="nodeFix-content">
+             <span class="color-red">*</span>  <span class="node-id text">节点ID:<input class="id-ipt" type="text" required></span>
+              <span class="color-red">*</span>  <span class="node-name text">节点名称:<input class="name" type="text" required></span><br/>
+               <span class="color-red">*</span>  <span class="node-address text">节点地址:<input class="addr" type="text" required></span>
+               <span class="color-red">*</span>  <span class="node-type text">节点类型:<select name="type-area" id="nodeFix-type" >
+<option selected="selected"></option>
+
+               </select>
+               </span><br/>
+               <span class="color-red">*</span>  <span class="access-name text">访问用户名:<input class="user" type="text" required></span>
+               <span class="color-red">*</span>  <span class="access-passwd text">访问密码:<input class="passw" type="text" required></span><br/>
+                <span class="color-red">*</span>  <span class="node-chionid text">节点通道号:<input class="chanid" type="text"></span>
+                <span class="color-red">*</span>  <span class="node-status text">节点状态:<input color="" class="status" type="text" readonly></span>
+        </div>
+      </div>
+    </div>
+</body>
+<script>
+var nodes = parent.getNodeById(parent.updateId);
+
+function setImg(){
+	 var params={
+			'method':'get_support_types'
+			}
+		$.post('/upapi',JSON.stringify(params),function(data){
+			if(data['retcode']==0)
+			{
+				type=data['types'];
+					for(var i=0;i<type.length;++i)
+					{
+						
+							var option = $("<option>"+type[i]+"</option>");
+							$("#nodeFix-type option:first").after(option);
+				}
+			}
+			})
+		var status=(nodes.is_online==0) ? "离线" : "在线";
+		$(".id-ipt").val(nodes.id);
+		$(".addr").val(nodes.addr);
+		$(".user").val(nodes.user);
+		$(".passw").val(nodes.passw);
+		$(".chanid").val(nodes.chanid);
+		$(".name").val(nodes.title);
+		$(".status").val(status);
+		$("#nodeFix-type option:first").text(nodes.type);
+	}
+    $(document).ready(function(e) { 
+	
+		
+		setImg();
+       
+    });
+function nodeFix(d,node,nodeList){
+	var params={
+		'method':'reset_node_info',
+		'sessionid':$.cookie('sessionid'),
+		'id':node.id,
+		'type':$('#nodeFix-type').val(),
+		'addr':$(".addr").val(),
+		'user':$('.user').val(),
+		'passw':$(".passw").val(),
+		'chanid':$('.chanid').val(),
+		'title':$(".name").val(),
+		'new_id':$(".id-ipt").val()
+		
+		}
+ $.post('/upapi',JSON.stringify(params),function(data){
+	 if(data['retcode']==0)
+	 {
+		 
+		 nodeList();
+		 d.close();
+	 }
+	 else{
+		 
+			  layer.msg('修改失败',{offset: 't',icon:5})
+			 
+		     
+		 }
+	 })
+	reset_node_info
+		
+	}
+</script>
+</html>

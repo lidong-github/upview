@@ -1,0 +1,39 @@
+@charset "utf-8";
+/* CSS Document */
+
+*{ margin:0; padding:0; border:0;}
+li{ list-style-type:none;}
+a{ text-decoration:none;}
+
+html,body{ width:100%; height:100%;}
+body{ font-size:13px; color:#333; font-family:"宋体";}
+.hide{ display:none !important;}
+
+
+/*设置网页内容不能被选中复制*/
+
+.add-max{top:0;left:0;bottom:0;right:0;position:absolute;z-index:9999;}
+span.force{color:#F00;font-weight:normal;}
+.add-area th{color:#09C;font-weight:normal;}
+.add-areaMax{position: absolute;width: 90%;height: auto;;z-index:10001;overflow: hidden;background:#FFF; }
+.add-areaBox{width:100%;margin-top:20px;line-height:10px;overflow:hidden;}
+.add-ipt{width:80%;border:1px solid rgba(23, 152, 85, 0.57);float:left;height:23px;display:inline-block;}
+.ipt{width:90%;line-height:43px; background:#FFF;text-align:right;}
+.ipt-text{font-weight:normal;}
+
+.reset-max{top:0;left:0;bottom:0;right:0;position:absolute;z-index:9999;}
+.reset-areaMax{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	;
+	z-index: 10001;
+	overflow: hidden;
+	background: #FFF;
+	left: 5px;
+}
+.reset-areaBox{width:100%;line-height:10px;margin-left:20px;margin-top:15px;overflow:hidden;}
+.reset-areaBox th{color:#09C;font-weight:normal;width:30px;}
+.reset-areaBox tr{line-height:20px; overflow:hidden;}
+.reset-areaBox span.ipt-text{width:67px;display:inline-block;}
+.reset-ipt{width:80%;height:23px;border:1px solid rgba(23, 152, 85, 0.57);}

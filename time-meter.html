@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<style type="text/css">
+      body {
+      	background-image:url(img/back.png);
+      	top center no-repeat; background-size:cover;
+      }
+      </style>
+	<title>time</title>
+	<style>
+	.clock{
+       width:300px;
+       height:90px;
+       background:#000;
+       color:#0f0;
+       font-weight:bold;
+       border-radius:50px;
+       text-align:center;
+       line-height:90px;
+       font-size: 30px;
+       }
+     .bustart{
+        width:100px;
+       height:30px;
+       background:#000;
+       color:#0f0;
+       font-weight:bold;
+       border-radius:50px;
+       text-align:center;
+       line-height:30px;
+       font-size: 20px;
+       }
+       .bustop{
+        width:100px;
+       height:30px;
+       background:#000;
+       color:#0f0;
+       font-weight:bold;
+       border-radius:50px;
+       text-align:center;
+       line-height:30px;
+       font-size: 20px;
+       }
+       .bureset{
+        width:100px;
+       height:30px;
+       background:#000;
+       color:#0f0;
+       font-weight:bold;
+       border-radius:50px;
+       text-align:center;
+       line-height:30px;
+       font-size: 20px;
+       }
+       </style>
+</head>
+<body>
+<center>
+ <br/>
+        <br/>
+        <br/>
+        <br/>
+         <br/>
+        <br/>
+        <br/>
+        <br/>
+         <br/>
+        <br/>
+        <br/>
+        <br/>
+<div class='clock' >
+        <span id='time' name='timeformat'>00:00:00:00</span>
+        </div>
+        <br/>
+        <div>
+             
+            <button class='bustart' id='start'>开始</button>
+            <button class='bustop' id='stop' >暂停</button>
+            <button class ='bureset' id='reset'>重置</button>
+        </div>
+        </div>
+</body>
+</center>
+<script>
+timeobj=document.getElementById('time');
+startobj=document.getElementById('start');
+stopobj=document.getElementById('stop');
+resetobj=document.getElementById('reset');
+second=null;
+hour=null;
+minutes=null;
+msec=null;
+function getTime(){
+	 var txt=document.getElementById('time').innerHTML; 
+     var  timestr=txt.split(':');
+     timeInt=null;
+     msec=parseInt(timestr[3]);
+     minutes=parseInt(timestr[2]);
+     second=parseInt(timestr[1]);
+     hour=parseInt(timestr[0]);
+     
+     msec++;
+     if(msec>=100)
+     {
+     	minutes++;
+     	msec=0;
+        if(minutes>=60)
+          {
+ 	        second++;
+ 	        minutes=0;
+ 	        if(second>=60)
+ 	         {
+ 		       hour+=1;
+ 		       second=0;
+ 	         }
+          }
+     }
+    timeInt=[hour,second,minutes,msec];
+    return timeInt;
+  
+
+}
+function setTime(){
+   var time=getTime();
+   var timestr;
+   if(time[0]>=12)
+   {
+       timestr='00:00:00:00';
+       timeobj.innerHTML=timestr;
+       return;
+   }
+   if(time[0]<=9)
+   {
+   	time[0]='0'+time[0];
+   }
+   if(time[1]<=9)
+   {
+   		time[1]='0'+time[1];	
+   }
+   if(time[2]<=9)
+   {
+     	time[2]='0'+time[2];
+   }
+   if(time[3]<=9)
+   {
+   	   time[3]='0'+time[3];
+   }
+   timestr=time[0]+':'+time[1]+':'+time[2]+':'+time[3];
+   timeobj.innerHTML=timestr;
+}
+function start(){
+	clearInterval(setClock);
+	setTime();
+	setclock=setClock=setInterval(setTime,10);
+}
+function stop()
+{
+	clearInterval(setclock);
+}
+
+
+setClock=null;
+startobj.onclick=function(){
+	
+	start();
+	
+}
+stopobj.onclick=function(){stop();}
+resetobj.onclick=function(){ stop();timeobj.innerHTML='00:00:00:00'}
+</script>
+</html>

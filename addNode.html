@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+        <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.cookie.js"></script>
+         <link rel="stylesheet" href="css/mycore.css"/>
+         <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+<title>无标题文档</title>
+</head>
+  
+<body>
+    <div class="addNode-max">
+      <div class="addNode-box">
+        <div class="addNode-content">
+           <span class="color-red">*</span> <span class="text">节点名称:<input  type="text" required class='node-name'></span>
+           <span class="color-red">*</span> <span class="text">节点ip地址:<input type="text" required class='node-address'></span><br/>
+           <span class="color-red">*</span>  <span class="node-type text">节点类型:<select name="type-area" id="type" >
+
+           </select>
+           </span>
+           <span class="color-red">*</span>  <span class="text">访问用户名:<input type="text" required  class="access-name"></span><br/>
+           <span class="color-red">*</span>  <span class="text">访问密码:<input type="text" required class="access-passwd"></span>
+           <span class="color-red">*</span>  <span class="text">节点通道号:<input type="text" required class='node-chionid'></span>
+        </div>
+      </div>
+    </div>
+</body>
+<script>
+ $(document).ready(function(e) {
+        var params={
+			'method':'get_support_types'
+			}
+		$.post('/upapi',JSON.stringify(params),function(data){
+			if(data['retcode']==0)
+			{
+				type=data['types'];
+					for(var i=0;i<type.length;++i)
+					{
+						var trr=$(
+							'<option value="'+type[i]+'">'+type[i]+'</option>'
+							)
+							$('#type').append(trr);
+				}
+			}
+			})
+    });
+   function addNode(d,nodeList){
+	   var type=$('#type option:selected').val();
+	   var addr=$('.node-address').val();
+	   var user=$('.access-name').val();
+	   var passw=$('.access-passwd').val();
+	   var chanid=$('.node-chionid').val();
+	   var title=$('.node-name').val();
+	   if(title.length==0){layer.tips("请填写节点名称",'.node-name');return false;}
+	    if(addr.length==0){layer.tips("请填写节点地址",'.node-address');return false;}
+	   if(type=='请选择节点类型'){layer.tips("请选择节点类型",'#type');return false;}
+	   if(user.length==0){layer.tips("请填写访问用户名",'.access-name');return false;}
+	   if(passw.length==0){layer.tips("请填写访问密码",'.access-passwd');return false;}
+	   if(chanid.length==0){layer.tips("请填写节点通道",'.node-chionid');return false;}
+	 
+	   var params={
+		   'method':'add_node',
+		   'sessionid':$.cookie('sessionid'),
+		   'addr':addr,
+		   'type':type,
+		   'user':user,
+		   'passw':passw,
+		   'chanid':chanid,
+		   'title':title,
+		   'pid':$.cookie('id')
+		   }
+		   
+	  $.post("/upapi",JSON.stringify(params),function(data){
+		  if(data['retcode']==0)
+		  {
+			  nodeList();
+			  window.top.setUpTree();
+			 
+			  return true;
+		  }
+		  else{
+			    layer.msg('添加失败',{offset:7,icon:5});
+				d.close();
+				
+			  }
+		})
+	   }
+</script>
+</html>

@@ -1,0 +1,61 @@
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" /> 
+<head>
+<title>test page for upsms web api</title>
+</head>	
+    <script language="javascript" type="text/javascript" src="jquery-1.11.2.js"></script>
+	<script type="text/javascript" src="jquery.md5.js"></script>
+	<script type="text/javascript" src="dist/jquery.json.min.js"></script>
+	<script type="text/javascript" src="dist/jquery.cookie.js"></script>
+    <script type="text/javascript">
+
+	function LoginID()
+	{
+	    return $.cookie("login_id");
+	}
+	function rec_login(data, status)
+	{
+  	    var ret = data["ret"];
+	    if("success" != ret)
+		{
+		   alert("用户名或密码错误！");
+		   return;
+		}
+		var login = data["sessionid"];
+		var jsonstr = $.toJSON(data);
+		var method = data["method"];
+		$.cookie("login_id", login); 
+		$.cookie("login_user", $("#login_user").val());
+		$.cookie("login_passw", $.md5($("#login_passw").val()));
+	    window.location.href="main.html";
+	}
+	
+	function Login()
+	{
+	    var jsonObj = {};
+	    jsonObj['method'] = "login";
+        jsonObj['user'] = $("#login_user").val();
+	    jsonObj['passw'] = $.md5($("#login_passw").val());
+	    var jsonstr = $.toJSON(jsonObj);
+        $.post("/upapi",jsonstr,rec_login);		
+	}
+    function ready()
+	{
+	    $("#login").click(Login);
+	}
+    $(document).ready(ready);
+    </script>
+<body>
+   <a href="/UpViewWeb.exe">pc端控件下载</a>
+   <form action="/license" method="POST" enctype="multipart/form-data">
+		<input name="upsms.lic" type="file" />
+		<input type="submit" value="submit" />
+   </form>
+  <br />
+  用户名:<input type="text" name="passw" value="admin" id="login_user" />
+  密  码:<input type="text" name="passw" value="123456" id="login_passw" />
+  <INPUT TYPE="button" value="登录" id="login"/>
+  <br />
+  <br />
+</body>
+</html>

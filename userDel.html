@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	
+	<title>视频监控系统</title>
+    <link rel="stylesheet" href="css/mycore.css"/>
+    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <link href="css/core.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+
+</head>
+<body >
+
+          <div class="head" ><span>你是否确认删除?</span></div> </div>
+</div>
+
+</body>
+
+<script> 
+function delUser(d,name,userList){
+	var usernameJson={
+		'method':'del_user',
+		'sessionid':$.cookie('sessionid'),
+		'user':name
+	}
+	
+	$.post('/upapi',JSON.stringify(usernameJson),function(date){
+		if(date['retcode']==0)
+		{
+			d.close();
+			userList();
+			
+		}
+		else if(date['retcode']==-3004)
+		{
+			alert("权限不够");
+			d.close();
+		}
+		else 
+		{
+			alert("删除失败");
+			d.close();
+		}
+
+
+	})
+
+}
+</script>
+</html>

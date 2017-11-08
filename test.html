@@ -1,0 +1,48 @@
+<!doctype html>  
+<html lang="en">  
+  
+    <head>  
+        <meta charset="utf-8">  
+        <title>jQuery UI Dialog - Modal message</title>  
+        <link rel="stylesheet" href="css/jquery-ui.min.css" text="text/css">  
+        <script type="text/javascript" src="js/jquery.js"></script>  
+        <script type="text/javascript" src="js/jquery-ui.min.js" ></script>  
+  
+        <script>  
+            $(function() {  
+                $("#dialog-message").hide();  
+            });  
+  
+            function showDialog() {  
+                $("#dialog-message").dialog({  
+                    height: 300,  
+                    width: 200,  
+                    // 模态开启  
+                    modal: true,  
+                    // 是否可拖拽  
+                    draggable: false,  
+                    // 最小宽度  
+                    minWidth: 300,  
+                    buttons: {  
+                        "确认分配": function() {  
+                            alert("确认分配！");  
+                            $(this).dialog("close");  
+                        }  
+                    }  
+                });  
+            }  
+        </script>  
+    </head>  
+  
+    <body>  
+        <input type="button" value="Show Dialog" onclick="showDialog();" />  
+        <div id="dialog-message" title="未分组学生名单">  
+            <p>小王</p>  
+            <p>小李</p>  
+            <p>小张</p>  
+            <p>小明</p>  
+            <p>小强</p>  
+        </div>  
+    </body>  
+  
+</html>  

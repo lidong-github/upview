@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<link href='play_myindex.css' type='text/css' rel="stylesheet">
+<head>
+	<meta charset="UTF-8">
+	<title>视频监控服务系统</title>
+	<script>
+	$('logout').click(function(){
+		val frame{
+			"method":"logout";
+			"sessionid":$.cookie('sessionid');
+		}
+		$.post('/upapi',JSON.stringify(frame),function(date)
+			if(date.retcode==0)
+			{
+                alert("成功");
+			}
+		})
+
+
+	});
+	</script>
+</head>
+<body>
+
+	<div class='top' id='playTop'>
+       <div class='logo' id='uplogo'></div> 
+	
+	<div class='username' id='user'></div>
+    <div class='logout' id='logout'></div>
+    </div>
+   <div>
+     <video class='window1' id='windows1'></video>
+     <video class='window2' id='windows2'></video><br/>
+     <video class='window3' id='windows3'></video>
+     <video class='window4' id='windows4'></video>
+    </div>
+</body>
+</html>

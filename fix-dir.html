@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+         <script type="text/javascript" src="js/jquery.cookie.js"></script>
+         <link rel="stylesheet" href="css/mycore.css"/>
+<title>视屏监控融合平台</title>
+</head>
+
+<body> 
+     <div class="fixDir-max">
+     <div class="fixDir-box">
+        <div class="fixDir-content">
+          <div class="dir-name"><span class="red-color">*</span>区域名称：<input type="text" class="name"></div>
+        </div>
+     </div>
+  </div>
+</body>
+<script>
+   function changeTitle(d,setDirList){
+	   var title=$('.name').val();
+	    var params={
+			'method':'change_dir_title',
+			'sessionid':$.cookie('sessionid'),
+			'id':$.cookie('id'),
+			'title':title
+			}
+	$.post('/upapi',JSON.stringify(params),function(data){
+		 if(data['retcode']==0)
+		 {
+			  setDirList();
+			  d.close();
+		}
+		 else{
+			 d.close();
+			 }
+		})
+	   }
+</script>
+</html>

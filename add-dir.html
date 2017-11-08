@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+         <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+         <script type="text/javascript" src="js/jquery.cookie.js"></script>
+         <link rel="stylesheet" href="css/mycore.css"/>
+         <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+<title>无标题文档</title>
+</head>
+
+<body>
+  <div class="addDir-max">
+     <div class="addDir-box">
+        <div class="addDir-content">
+          <div class="up-area"><span> 上级区域：</span><input type="text" class="addr"></div>
+          <div class="up-name"><span class="red-color">*</span>区域名称：<input type="text" class="name"></div>
+        </div>
+     </div>
+  </div>
+</body>
+<script>
+$(document).ready(function(e) {
+	trr=$.cookie('title');
+    $('.addr').val(trr);
+});
+   function addDir(d,setDirList){
+	   var title=$(".name").val();
+	   var params={
+		   'method':'add_dir',
+		   'sessionid':$.cookie('sessionid'),
+		   'pid':$.cookie('id'),
+		   'title':title
+		   }
+	$.post('/upapi',JSON.stringify(params),function(data){
+		if(data['retcode']==0)
+		{
+			setDirList();
+			d.close();
+			return true;
+		}
+		else{
+			  layer.msg('失败',{offset: 't',icon:5})
+			  return false;
+			}
+		})
+	   }
+</script>
+</html>

@@ -1,0 +1,638 @@
+<!doctype html>
+<html><head>
+</script>
+
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<link href="zTree_v3/css/zTreeStyle/zTreeStyle.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="zTree_v3/js/jquery.ztree.all.min.js"></script>
+<script src="js/uc-ui.js" type="text/javascript"></script>
+<link href="css/core.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+
+<meta charset="utf-8">
+<title>视频监控客户端</title>
+<link rel="stylesheet" text="text/css" href="css/index.css">
+</head>
+<body>
+
+
+
+
+
+<!--首页顶部-->
+<div id='index-max'>
+
+    <div id="index-top">
+            <img class="logo-img" src="img/logo.png" width="457" height="50"><!--显示用户 -->
+         <div class="top-control">
+         <div id="person">
+      			<img src="img/top-man.png" width="25" height="25"> 
+   		   		<a  id="loginUser">用户名</a>
+     	</div>
+ 	    <!--修改密码-->
+   		<div id="revise-passwd">
+    			<img src="img/top-password.png" width="25" height="25">
+   				 <a class="chang-passwd">修改密码</a>
+   	    </div>
+        <!--注销-->
+   		<div id="logout-img"><img src="img/top-exit.png" width="26" height="26"> <span id="logout-text">退出</span> </div>	
+	</div>
+</div>
+		<!--首页导航-->
+		<div id="index-nav">
+            <div class="nav-content">
+                    <span id="stream-browse" class="nav stream-browse checked"><img src="img/icon/look.png" width="16" height="16"><a>视频浏览</a></span>
+                    <span id="stream-back" class="nav stream-back"><img src="img/play.png" width="16" height="16"><a>视频回放</a></span>
+                    <span id="stream-analysis" class="nav analysis"><img src="img/jiedian.png" width="16" height="16"><a>视频分析</a></span>
+                    <span id="stream-resource" class="nav resource"><img src="img/internet.png" width="16" height="16"><a>监控资源</a></span>
+                    <span id="resource-sharing" class="nav sharing"><img src="img/share.png" width="16" height="16"><a>资源共享</a></span>
+                    <span id="User-configured" class="nav User"><img src="img/menu-statistics.png" width="16" height="16"><a>用户配置</a></span>
+                    <span id="system-configuration" class="nav system"><img src="img/menu-system.png" width="16" height="16"><a>系统配置</a></span>
+             </div>
+ 		</div>
+        
+        
+		<!--监控播放盒子-->
+        <div class='index-streambox'>
+	<div id="index-stream">
+		        <!--树控件-->
+                <div class="left-content">
+                 <div id="dir-content">
+                          <div class="dir-nav">
+                              <div  class="show-hide">
+                                 
+                                 </div>
+                              
+                              <div class="dir-set">
+                                <span class="add-dir"><img title="添加" src="img/icon/pan-add.png" width="18" height="18"></span>
+                                <span class="fix-dir"><img title="修改" src="img/icon/pan-upd.png" width="18" height="18"></span>
+                                <span class="del-dir"><img title="删除" src="img/icon/pan-del.png" width="18" height="18"></span>
+                              </div>
+                              <div id="dir-list" class="dir-list ztree"></div>
+                           </div>
+                           </div>
+  				<div id="tree">
+                 
+  				<!--树刷新区域-->
+      					<div id="renovate">
+      						<div title ="隐藏节点" id="li-show"></div>
+      				   		 <div title="显示节点" id="li-hide"></div>
+      						<div id="tree-renovate">监控区域
+      						<span class="tree-updata"><img title="刷新" class="icon-revise" src="img/icon/001.png"></span>
+      						</div>
+                   		</div>
+                   		<!--节点区域-->
+        				<div id="tree-node" class="ztree">
+        		
+                       </div>
+               </div>
+               <div id="backTree">
+                 
+  				<!--树刷新区域-->
+      					<div id="backTree-renovate">
+      						<div title ="隐藏节点" id="li1-show"></div>
+      				   		 
+      						<div id="tree-renovateBack">监控区域
+      						<span class="backTree-updata"><img title="刷新" class="icon-backTree" src="img/icon/001.png"></span>
+      						</div>
+                   		</div>
+                   		<!--节点区域-->
+        				<div id="backTree-node" class="ztree">
+        		
+                       </div>
+               </div>
+               </div>
+       <div id="hide">
+          <span class="move hide-tree" ></span>
+          <span class="move show-tree"></span>
+       </div>
+       <!--右侧区域-->
+       <div id="stream-control" >
+           <div id="stream-control-iframe">
+           <iframe id='index-iframe' class='index-iframe' src="index-streamControl.html"></iframe>
+           </div>
+        </div>
+        </div>
+        </div>
+         <!--首页底部-->
+         <div id="footer"> <span id="copyright">版权所有：重庆扬讯软件技术股份有限公司 当前版本号 <span class="version"></span></span></div>
+    </div>
+</body>
+
+
+<script type="text/javascript">
+$(window).resize(function() {
+	setHeight();
+	})
+$(function(){
+	setHeight();
+	})
+	function setHeight(){
+			var height0 = document.documentElement.clientHeight;
+			 var height=height0-112;
+			 $('.index-streambox').height(height);
+			
+	}
+var myTree;
+function getTreeNode(){
+		if(myTreeobj!=null){
+			return myTreeobj.getSelectedNodes();
+		}else{
+			return null;
+		}
+	}
+var treeObj;
+var fns = [];
+	var types = {
+			TREE_NODE_CLICK : "TREE_NODE_CLICK"
+		};
+
+	function registerFn(fn, type) {
+		for (var i=0;i<fns.length;i++){
+			if (fns[i].type == type && fns[i].fn == fn) {
+				return;
+			}
+		}
+		fns.push({fn:fn,type:type});
+	}
+function setUpTree(){
+	
+	 var treeJson={
+	  "method" :'get_all_node',
+	  "sessionid":$.cookie('sessionid')
+	  }
+	  $.post('/upapi',JSON.stringify(treeJson),function(date){
+		 
+	  if(date["retcode"]==0) 
+		  {
+			  
+			  var node=date["node"];
+			
+			  /*for(var i=0;i<node.length;i++)
+			  {
+				var fns = [];
+				var types = {
+						TREE_NODE_CLICK : "TREE_NODE_CLICK"
+					};
+			    function registerFn(fn, type) {
+						for (var i=0;i<fns.length;i++){
+							if (fns[i].type == type && fns[i].fn == fn) {
+								return;
+							}
+						 }
+						fns.push({fn:fn,type:type});
+						}*/
+				  var setting = {  
+					treeTd:"videoTree",  //id
+					data : {
+						key : {
+							name:"title"
+							  },	
+				   simpleData : {
+						enable : true, //表示确定显示为简单数据，如果设置为 true，务必设置 setting.data.simpleData 内的其他参数: idKey / pIdKey / rootPId，并且让数据满足父子关系
+						idKey : "id",  //取得数据库中的id
+						pIdKey: "pid", //id,接口中定义的id
+						rootPId : -1  // 
+					},
+				keep : {
+					leaf : true,
+					parent : true
+				}
+			},
+			callback : {
+				onClick : function(event, treeId, treeNode, clickFlag) {
+					var treeObj = $.fn.zTree.getZTreeObj("tree-node");
+								var nodes = treeObj.getSelectedNodes();
+						  document.getElementById('index-iframe').contentWindow.play(nodes);
+					}
+			
+			}
+			/*view : {
+					selectedMulti: false,
+					removeHoverDom : function(treeId, treeNode) {
+						$("#diyBtn_addspan_"+treeNode.id).unbind().remove();
+						$("#diyBtn_add_" +treeNode.id).unbind().remove();
+						$("#diyBtn_editspan_"+treeNode.id).unbind().remove();
+						$("#diyBtn_edit_" +treeNode.id).unbind().remove();
+						$("#diyBtn_deletespan_"+treeNode.id).unbind().remove();
+						$("#diyBtn_delete_" +treeNode.id).unbind().remove();
+					}
+			},*/
+		               
+					};  
+					 myTree=$.fn.zTree.init($("#tree-node"), setting,node);
+					
+			  
+			  }
+		  
+		  })
+	 }
+
+
+function setUpTree2(){
+	$('#tree-node').empty();
+	 var treeJson={
+	  "method" :'get_all_node',
+	  "sessionid":$.cookie('sessionid')
+	  }
+	  $.post('/upapi',JSON.stringify(treeJson),function(date){
+		 
+	  if(date["retcode"]==0) 
+		  {
+			  var node=date["node"];
+				  var setting = {  
+					treeTd:"videoTree",  
+					data : {
+						key : {
+							name:"title"
+							  },	
+				   simpleData : {
+						enable : true,
+						idKey : "id",  
+						pIdKey: "pid", 
+						rootPId : -1  
+					},
+				keep : {
+					leaf : true,
+					parent : true
+				}
+			},
+			callback : {
+				onClick : function(event, treeId, treeNode, clickFlag) {
+					var treeObj = $.fn.zTree.getZTreeObj("tree-node");
+								var nodes = treeObj.getSelectedNodes();
+						  document.getElementById('index-iframe').contentWindow.play2(nodes);
+					}
+			
+			}
+		               
+					};  
+					 myTree=$.fn.zTree.init($("#tree-node"), setting,node);
+					
+			  
+			  }
+		  
+		  })
+	 }
+
+function setUpTree3(){
+	$('#tree-node').empty();
+	 var treeJson={
+	  "method" :'get_all_node',
+	  "sessionid":$.cookie('sessionid')
+	  }
+	  $.post('/upapi',JSON.stringify(treeJson),function(date){
+		 
+	  if(date["retcode"]==0) 
+		  {
+			  var node=date["node"];
+				  var setting = {  
+					treeTd:"videoTree",  
+					data : {
+						key : {
+							name:"title"
+							  },	
+				   simpleData : {
+						enable : true,
+						idKey : "id",  
+						pIdKey: "pid", 
+						rootPId : -1  
+					},
+				keep : {
+					leaf : true,
+					parent : true
+				}
+			},
+			callback : {
+				onClick : function(event, treeId, treeNode, clickFlag) {
+					var treeObj = $.fn.zTree.getZTreeObj("backTree-node");
+								var nodes = treeObj.getSelectedNodes();
+						  document.getElementById('index-iframe').contentWindow.play3(nodes);
+					}
+			
+			}
+		               
+					};  
+					 myTree=$.fn.zTree.init($("#backTree-node"), setting,node);
+					
+			  
+			  }
+		  
+		  })
+	 }
+
+
+//修改dir
+$('.fix-dir').click(function(){
+	var dia_log = {
+			"width":"400",	
+			"height":"180",
+			"title":"修改密码",
+			"url":"fix-dir.html",
+			save:function(){
+				d.iframe.contentWindow.changeTitle(d,setDirList);
+				}
+		}
+		d = dialog(dia_log);
+	})
+//删除dir
+	$('.del-dir').click(function(){
+	var dia_log = {
+			"width":"300",	
+			"height":"170",
+			"title":"删除节点",
+			"url":"del-dir.html",
+			save:function(){
+				d.iframe.contentWindow.delDir(d,setDirList);
+				}
+		}
+		d = dialog(dia_log);
+	})
+	
+
+
+
+$('.nav').live('click',function(){
+	
+	  $(this).addClass('checked');
+	  $(this).siblings().removeClass('checked');
+	  })
+  var height=document.body.clientHeight-114;
+  $("index-stream").css('height',height+'px');
+function goToUrl(e)
+{
+	document.getElementById("index-iframe").src=e;
+}
+//修改密码
+$('.chang-passwd').live('click',function(){
+		var dia_log = {
+			"width":"600",	
+			"height":"250",
+			"title":"修改密码",
+			"url":"resetPassw.html",
+			save:function(){
+				d.iframe.contentWindow.resetPassw(d);
+				}
+		}
+		d = dialog(dia_log);
+	})
+function changeTree(){
+	$('#dir-content').hide();
+	$('#tree').show();
+	$('#tree-node').hide();
+	} 
+function hideTree(){
+		$(".left-content").hide();
+		$('.hide-tree').hide();
+		$('.show-tree').show(); 
+		$('#hide').css('margin-left', '0px');
+    	$('#stream-control').css('left','10px');
+		}
+//资源分享
+$('#resource-sharing').live('click',function(){
+	goToUrl('resource-share.html');
+	changeTree()
+	$('#backTree').hide();
+	
+	
+})
+//视屏分析
+$('#stream-analysis').click(function(){
+	
+	goToUrl('video-analy.html');
+	 changeTree()
+	showTree();
+    setUpTree2();
+	$('#backTree').hide();
+	$('#tree-node').show();
+	})
+	function setDirList(){
+		var pamams={
+			'method':'get_dir',
+			'sessionid':$.cookie('sessionid')
+			}
+	$.post('/upapi',JSON.stringify(pamams),function(date){ 
+	  if(date["retcode"]==0) 
+		  {
+			  var node=date["dir"];
+			
+			  for(var i=0;i<node.length;i++)
+			  {
+				  if(node[i].title=="root")
+				  {
+					  $.cookie('id',node[i].id,{expires : 1});
+					  $.cookie('title',node[i].title,{expires : 1});
+				  }
+				  node[i].isParent=true;
+				  var setting = {  
+								treeTd:"videoTree",  //id
+								data : {
+									key : {
+										name:"title"
+										  },	
+							   simpleData : {
+									enable : true,  
+									idKey : "id",  
+									pIdKey: "pid", 
+									rootPId : -1  
+								},
+							keep : {
+								leaf : true,
+								parent : true
+							}
+						},
+						callback : {
+							
+							onClick : function(event, treeId, treeNode, clickFlag) {
+								for (var i=0;i<fns.length;i++){
+						              if (fns[i].type == types.TREE_NODE_CLICK) {
+						                 	try {
+								                     fns[i].fn(treeNode);
+							                    } catch(e){}
+						                       
+					                        }
+				                    }
+
+								treeObj = $.fn.zTree.getZTreeObj("dir-list");
+								var nodes = treeObj.getSelectedNodes();
+								
+								
+									var nodeId = nodes[0].id;
+									 $.cookie('id',nodeId,{expires : 1});
+									  $.cookie('title',nodes[0].title,{expires : 1});
+									 dialogMon();
+							}
+							
+						},
+						
+
+						view : {
+								selectedMulti: false,
+								removeHoverDom : function(treeId, treeNode) {
+									$("#diyBtn_addspan_"+treeNode.id).unbind().remove();
+									$("#diyBtn_add_" +treeNode.id).unbind().remove();
+									$("#diyBtn_editspan_"+treeNode.id).unbind().remove();
+									$("#diyBtn_edit_" +treeNode.id).unbind().remove();
+									$("#diyBtn_deletespan_"+treeNode.id).unbind().remove();
+									$("#diyBtn_delete_" +treeNode.id).unbind().remove();
+								}
+						},
+		               
+					};  
+										
+			   myTreeobj=$.fn.zTree.init($(".ztree"), setting,node);
+			   myTreeobj.expandAll(true);
+		       myTreeobj.selectNode(myTreeobj.getNodes()[0]);
+			  }
+		  }
+		  })
+	 }
+
+function dialogMon(){
+	goToUrl('monitoring-resources.html');
+	
+	}
+	//添加dir
+	$('.add-dir').click(function(){
+	var treeNodes = getTreeNode();
+	if(treeNodes.length==1)
+	{
+		
+	}
+	else{layer.msg('请选择一个父节点',{offset:7,icon:0});}
+	var dia_log = {
+			"width":"400",	
+			"height":"200",
+			"title":"添加监控区域",
+			"url":"add-dir.html",
+			save:function(){
+				d.iframe.contentWindow.addDir(d,setDirList);
+				}
+		}
+		d = dialog(dia_log);
+	})
+
+
+//视频回放
+
+$('#stream-back').live('click',function(){
+	goToUrl('stream-back.html');
+	$('#tree').hide();
+	$('#dir-content').hide();
+	$('#backTree').show();
+	setUpTree3();
+	
+})
+//监控资源
+$('#stream-resource').live('click',function(){
+	
+	dialogMon();
+	$('#tree').hide();
+	$('#backTree').hide();
+	$('#dir-content').show();
+	setDirList();
+	
+	})
+
+//视频浏览
+$('#stream-browse').live('click',function(){
+	goToUrl('index-streamControl.html');
+	changeTree();
+	$('#tree-node').show();
+	setUpTree();
+	$('#backTree').hide();
+	})
+//系统配置
+$('#system-configuration').live('click',function(){
+	goToUrl('system-configuration.html');
+	 changeTree();
+	hideTree();
+	$('#backTree').hide();
+	
+})
+//用户配置
+$('#User-configured').live('click',function(){
+	goToUrl('user-list.html');
+	 changeTree();
+	 $('#backTree').hide();
+	hideTree();
+});
+ document.getElementById("loginUser").innerHTML = $.cookie('user');
+ 
+ $(document).ready(function() {
+	 
+     setUpTree();
+});
+$('.icon-revise').live('click',function(){ 
+      if($('.stream-browse').hasClass('checked'))
+		{
+			setUpTree();
+		}
+		else if($('.analysis').hasClass('checked'))
+		{
+			
+			 setUpTree2();
+		}
+		
+})
+function logOut(){
+	var logoutJson={
+		"method":"logout",
+		"sessionid":$.cookie('sessionid')
+		}
+	$.post("/upapi",JSON.stringify(logoutJson),function(date){
+		if(date.retcode==0)
+		{
+			
+			window.location.href='/my_login.html';
+		}
+		else{
+			   return false;
+			}
+		})
+	}
+$('#li-show').live('click',function(){
+	$('#li-show').hide();
+	$('#li-hide').show();
+	
+	});
+$('#li-hide').live('click',function(){
+	$('#li-show').show();
+	$('#li-hide').hide();
+	
+	});
+$('.show-tree').hide();
+
+$('#logout-img').live('click',function(){
+	logOut();
+	})
+$(".hide-tree").live('click',function(){$(".left-content").hide(0,function(){hideTree();})});
+	
+$(".show-tree").live('click',function(){$(".left-content").show(0,function(){showTree();})});
+	function showTree(){
+		$(".left-content").show();
+		$('.hide-tree').show();
+		$('.show-tree').hide(); 
+		$('#hide').css('margin-left', '222px');
+		$('#stream-control').css('left','232px');
+	}
+$().ready(function(e) {
+    var params={
+		'method':"get_version",
+		
+		}
+		$.post('/upapi',JSON.stringify(params),function(data){
+			if(data['retcode']==0)
+			{
+				
+				$('.version').text(data['version']);
+			}
+			})
+});
+//错误，退到登录页面
+function backLogout(){
+	window.location.href="/my_login.html";
+	}
+</script>
+</html>

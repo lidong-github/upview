@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <link rel="stylesheet" href="css/mycore.css"/>
+</head>
+<body>
+	<div class="systeembox">
+    <div class='systemcontent'>
+	  	<div class="nav">
+            <div>
+            <div class="sys-title">系统设置</div>
+               <div class="sys-list">
+                   <div class="method video-analy checked" ><span class='sys-icon '></span>视屏分析应用平台设置</div>
+                 <div class="method  dowload"><span class='sys-icon'></span>控件下载</div>
+                 <div class="method  sys-repair"><span class='sys-icon'></span>系统维护</div>
+                 <div class="method  internet-set"><span class='sys-icon'></span>网络设置</div>
+                 <div class="method  empower-enter"><span class='sys-icon'></span>授权导入</div>
+               </div>
+            </div>
+     	 </div>
+	  <div class="segmentation"></div>
+	  <div class="content">
+          <iframe id='index-iframe' class='index-iframe' src="video-analySet.html"></iframe>
+      </div>
+      </div>
+	</div>
+</body>
+<script>
+function goToUrl(e)
+{
+	document.getElementById("index-iframe").src=e;
+}
+$('.method').live('click',function(){
+	  $(this).addClass('checked');
+	  $(this).siblings().removeClass('checked');
+	  })
+$('.video-analy').live('click',function(){
+	goToUrl('video-analySet.html');
+})
+$('.dowload').live('click',function(){
+	goToUrl('widget-dowload.html');
+})
+$('.sys-repair').live('click',function(){
+	goToUrl('system-reair.html');
+})
+$('.internet-set').live('click',function(){
+	goToUrl('internet-set.html');
+})
+$('.empower-enter').live('click',function(){
+	goToUrl('empower-enter.html');
+})
+</script>
+</html>

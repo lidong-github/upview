@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+    <link rel="stylesheet" href="css/mycore.css"/>
+</head>
+   <div class="empower-enterMax">
+      <div class="empower-enterBox">
+      		<div class="empower-enterContent">
+              <div class='empower-enterTitle'><span>授权导入</span></div>
+               <div class="empower-enterIpt">
+                   
+                   <div class="key-mark">
+                   key串码：<input type="text" required class="ipt get-key" value=""></div>
+                   <div class="up-keyMark"><span class="red-color">*</span>
+                  上传license串码：<input type="text" required  class="ipt send-keyMark"></div>
+                  
+             </div>
+            <div class="keep-btn"><input type="button" value="保存"></div>
+      </div>
+   </div>
+<body>
+</body>
+<script>
+function getKey()
+{
+  var getKeyJson={
+    'method':'get_key',
+    'sessionid':$.cookie('sessionid')
+  }
+  $.post('/upapi',JSON.stringify(getKeyJson),function(date){
+	  if(date['retcode']==0)
+	  {
+		  $('.get-key').val(date['key']);
+		  return true;
+	  }
+	  else{
+		     layer.msg('获取key串失败',{offset:7,icon:5});
+			 return false;
+		  }
+    
+  })
+}
+getKey();
+    $('.keep-btn').live('click',function(){
+      var license=$('.send-keyMark').val();
+	  if(license.length==0)
+	  {
+		  
+	  }
+      var licenseJson={
+         'method':'update_lic',
+         'lic':license
+      }
+      $.post('/upapi',JSON.stringify(licenseJson),function(date){
+        if(date['retcode']==0)
+        {
+         layer.msg('上传成功',{offset:7,icon:5});
+        }
+        else
+        {
+          layer.msg('上传失败',{offset:7,icon:5});
+        }
+         
+      })
+    })
+</script>
+</html>

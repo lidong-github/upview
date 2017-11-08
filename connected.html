@@ -1,0 +1,213 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+		<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.cookie.js"></script>
+         <link rel="stylesheet" href="css/mycore.css"/>
+<title>无标题文档</title>
+</head>
+<body>
+<div class="connected-max">
+  <div class="connected-box">
+    <div class='connected-content'>
+             <div class="noConnected-list">
+               <div class="list-top"><span> 未关联设备</span></div>
+               <table class="noContec-control">
+                  <tr>
+                      <th width="45"><input type="checkbox" class="noContent" ></th>
+                      <th width="45">序号</th>
+                      <th width="260">节点名称</th>
+
+                  </tr>
+               </table>
+             </div>
+             <div class="change-icon">
+              <div class='icon-area'>
+                <span class="share-control" title="共享">关联<img src="img/arrow-right.png"></span><br/>
+                 <span class="cancel-control" title="取消">取消<img src="img/arrow-left.png"></span>
+              </div>
+      </div>
+             <div class="connected-list">
+                  <div class="list-top"> <span>已关联设备</span></div>
+                   <table class="content-control">
+                      <tr >
+                          <th width="45"><input type="checkbox"  width="45" class='content-all'></th>
+                          <th >序号</th>
+                          <th >节点名称</th>
+    					  <th >组织机构</th>
+                      </tr>
+                   </table>
+                   <div class="list-tobdy">
+                     <div class="list-title">
+                        <table class="content-control" id="content-list-show"></table>
+                     </div>
+                      
+                   </div>
+             </div>
+             </div>
+     </div>
+      
+  </div>
+
+</body>
+
+
+<script>
+var sessionid=$.cookie('sessionid');
+function getFreeNode(){
+	
+	  var params={
+		'method':'get_free_node',
+		'sessionid':sessionid
+		}
+	$.post('/upapi',JSON.stringify(params),function(data){
+		if(data['retcode']==0)
+		{
+			$(".td-freenode").empty();
+			 var node=data['node'];
+			 for(var i=0;i<node.length;++i)
+			 {
+			 var trr = $('<tr class="td-freenode">'
+						+'<td width="45"><input type="checkbox" name="freeNode"/></td>'
+						+'<td width="45">'+(i+1)+'</td>'
+						+'<td name="node" id="'+node[i].id+'">'+node[i].title+'</td>'
+						+'</tr>');
+		
+			$(".content-control").append(trr);
+		    }
+		}
+		
+		})
+	}
+	
+//已经关联设备
+var title=$.cookie('title');
+function getNode(){
+ var params={
+	 'method':'get_node',
+	 'sessionid':sessionid,
+	 'id':$.cookie('id')
+	 }
+  $.post('/upapi',JSON.stringify(params),function(data){
+	  if(data['retcode']==0)
+	  {
+		  $('.td-node').empty();
+		   var node=data['node'];
+			 for(var i=0;i<node.length;++i)
+			 {
+			 var trr = $('<tr class="td-node">'
+						+'<td width="45"><input type="checkbox" name="node"/></td>'
+						+'<td width="45">'+(i+1)+'</td>'
+						+'<td name="title" id="'+node[i].id+'">'+node[i].title+'</td>'
+						+'<td name="dir">'+title +'</td>'
+						+'</tr>');
+		
+			$(".noContec-control").append(trr);
+		 }
+	  }
+	  })
+	  };
+	  
+	  
+$(document).ready(function(e) {
+	getNode();
+	getFreeNode();
+});
+
+//关联
+$('.share-control').click(function(){
+	var ids=[];
+	var cecks=$(".noContec-control tr").find(":checkbox[checked='checked']");
+	cecks.each(function(i,v){
+		var idd = $(v).parent().parent().find("td[name='node']").attr("id");
+         ids.push(idd);
+	})
+	   var params={
+		   'method':'chnodepid',
+		   'sessionid':sessionid,
+		   'pid':$.cookie('id'),
+		   'ids':ids
+		   };
+	$.post('/upapi',JSON.stringify(params),function(data){
+		if(data['retcode']==0)
+		{
+			getFreeNode();
+			getNode();
+			
+		}
+	})
+})
+//取消
+
+$('.cancel-control').click(function(){
+	var ids=[];
+	var cecks=$(".content-control tr").find(":checkbox[checked='checked']");
+	
+	cecks.each(function(i,v){
+		var idd = $(v).parent().parent().find("td[name='title']").attr("id");
+         ids.push(idd);
+	})
+	   var params={
+		   'method':'chnodepid',
+		   'sessionid':sessionid,
+		   'pid':'',
+		   'ids':ids
+		   }
+	$.post('/upapi',JSON.stringify(params),function(data){
+		if(data['retcode']==0)
+		{
+			getFreeNode();
+			getNode();
+			
+		}
+		})
+	   })
+$('.content-all').click(function() {
+    var status=this.checked;
+	var cecks=$('input[name="node"]:checkbox');
+	cecks.each(function(index, element) {
+		
+        this.checked=status;
+		if(status==true)
+		{
+			
+			$(this).parent().parent().addClass('selectedTr');
+	    }
+		else{
+			$(this).parent().parent().removeClass('selectedTr');
+			}
+    });
+});
+$('.noContent').live('click',function(){
+	 var status=this.checked;
+	var cecks=$('input[name="freeNode"]:checkbox');
+	cecks.each(function(index, element) {
+		
+        this.checked=status;
+		if(status==true)
+		{
+			
+			$(this).parent().parent().addClass('selectedTr');
+	    }
+		else{
+			$(this).parent().parent().removeClass('selectedTr');
+			}
+    });
+})
+$('.td-node').live('click',function(){
+	
+	if($('.td-node checkbox:checked')==true)
+	{
+		$(this).removeClass('selectedTr');
+		
+	}
+	else{
+		 $(this).addClass('selectedTr');
+		}
+	});
+$('.td-freenode').live('click',function(){
+	$(this).addClass('selectedTr');
+	});
+</script>
+</html>

@@ -1,0 +1,343 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <link rel="stylesheet" href="css/mycore.css"/>
+    <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+<title>无标题文档</title>
+</head>
+<body>
+  <div class="resource-shareMax">
+      <div class="resource-shareBox">
+      		<div class="resource-shareContent">
+            <div class="resource-top">资源共享</div>
+              <div class='resource-shareTitle'><span>联网级联配置</span></div>
+              <div class='resource-area'>
+                   
+                      <div  class='is-on'><span class='red-color'>*</span><span>是否加密</span>
+                     <input type='radio' name='switch' value="true" class="on">是
+                     <input type="radio" name="switch" value="false" class="off">否
+                     </div> 
+                      <div  class='is-share'><span class='red-color'>*</span><span>是否共享</span>
+                     <input type='radio' name='share' value="true" class='is'>是
+                     <input type="radio" name="share" value='false' class='no'>否
+                     </div>
+                     <div class="resource-ipt">
+                         <div><span class="red-color">*</span><span>上级地址:</span>
+                         <input type="text" class='addr-ipt'>
+                        </div>
+                        <div><span class="red-color">*</span><span>用户名:</span>
+                         <input type="text" class='user-ipt'>
+                        </div>
+                        <div><span class="red-color">*</span><span>密码:</span>
+                         <input type="text" class='passwd-ipt'>
+                         
+                        </div>
+                       
+                    </div>
+                     <div class="resource-button"><input type="button" value="保存" id="cfg-control"></div>
+                </div>
+                 
+                        <div class="resource">
+                           <div class="resource-list-no">
+                              <div class="list-title"><span>未共享资源</span>
+                                
+                              </div>
+                              <table class="notShare-list-content">
+                                  <tr>
+                                  <th  width="45" ><input class="all-user" type="checkbox"></th>
+                                    <th  width="45" >序号</th>
+                                    <th   name="name" >名称</th>
+                                    <th name="name" >类型</th>
+                                    <th  name="name" >用户</th>
+                                    <th  name="name" >ip地址</th>
+                                  </tr>
+                                 
+                                </table>
+                               <div class="notShare-list-tobdy">
+                                   <div class="notShare-list">
+                                         <table class="notShare-list-content" id="notShare-list-show"></table>
+                                   </div>
+                                </div>
+                             
+                           </div>
+                          
+                           <div class="resource-change">
+                                 <span class="share" title="共享">共享&nbsp;<img src="img/arrow-right.png" width="24" height="24"></span>
+                               <span class="cancel" title="取消" >取消&nbsp;<img src="img/arrow-left.png" width="24" height="24"></span>
+                           </div>
+                           <div class="resource-list-yes">
+                               <div class="list-title" >
+                                 <span>已共享资源</span></div>
+                                 <table class="Share-list-content">
+                                  <tr>
+                                  <th width="45" ><input class="all-user-yes" type="checkbox"></th>
+                                    <th width="45" >序号</th>
+                                    <th  name="name" >名称</th>
+                                    <th name="name" >类型</th>
+                                    <th name="name"  >用户</th>
+                                    <th name="name" >ip地址</th>
+                                  </tr>
+                                </table>
+                                
+                                <div class="Share-list-tobdy">
+                                   <div class="Share-list">
+                                      <table class="Share-list-content" id="Share-list-show"></table>
+                                   </div>
+                                </div>
+                              </div>
+                              
+           			   </div>
+          
+            </div>
+            
+       </div>
+</div>
+
+</body>
+<script>
+//获取信息
+ function getCascadeCfg(){
+	 var params={
+		'method':'get_cascade_cfg',
+		'sessionid':$.cookie('sessionid')
+		}
+	 $.post('/upapi',JSON.stringify(params),function(data){
+		 if(data['retcode']==0)
+		 {
+			$('.addr-ipt').val(data['addr']);
+			$('.user-ipt').val(data['user']);
+			$('.passwd-ipt').val(data['passw']);
+			if(data['is_encrypted']==true)
+			{
+				
+				$('.is').attr('checked','checked');
+			}
+			else{
+				$('.no').attr('checked','checked');
+				}
+			if(data['is_enable']==true)
+			{
+				$('.on').attr('checked','checked');
+				}
+			else{
+				$('.off').attr('checked','checked');
+				}
+			
+		 }
+		 else{layer.msg('获取失败'),{icon:5};}
+		
+
+		 })
+	 }
+$(document).ready(function() {
+    getCascadeCfg();
+});
+//设置信息
+ function setCfg(){
+	var is_share=$('.is-share input[name="share"]:checked').val();
+	if(is_share=='true')
+	{
+		is_share=true;
+	}
+	else{is_share=false;}
+	var is_on=$('.is-on input[name="switch"]:checked').val();
+	if(is_on=='true')
+	{
+		is_on=true;
+	}
+	else{is_on=false;}
+	var addr=$('.addr-ipt').val();
+
+	var user=$('.user-ipt').val();
+	var passw=$('.passwd-ipt').val();
+	var params={
+		'method':'set_cascade_cfg',
+		'sessionid':$.cookie('sessionid'),
+		'addr':addr,
+		'user':user,
+		'passw':passw,
+		'is_encrypted':is_share,
+		'is_enable':is_on
+		}
+	$.post('/upapi',JSON.stringify(params),function(data){
+		if(data['retcode']==0)
+		{
+			layer.msg('设置成功',{offset: 't',icon:6});
+		}
+		else{layer.msg('设置失败',{offset: 't',icon:5});}
+		})
+	 }
+
+//保存级联设置
+$('#cfg-control').click(function(){
+	setCfg();
+	});
+	
+//共享设置
+/*$(".notShare-list").empty();*/
+  function setSharedList(){
+	  $('#Share-list-show').empty();
+	  $('#notShare-list-show').empty();
+	  
+	 var userJson={
+		 'method':'get_all_node',
+		 'sessionid':$.cookie('sessionid')
+		 };
+		 $.post('/upapi',JSON.stringify(userJson),function(date){
+			 if(date['retcode']==0)
+			 {
+				 var userData=date['node'];
+				 var j=1;
+				 var k=1;
+				 for( var i=0;i<userData.length;++i)
+				 {
+					
+					
+					 if(userData[i]['is_shared']==0)
+					 {
+						
+						 var trr = $('<tr class="td-color">'
+						+'<td width="45"><input type="checkbox" name="name"/></td>'
+						+'<td width="45">'+(j++)+'</td>'
+						+'<td name="id" id="'+userData[i].id
+						+'">'+userData[i]['title']
+						+'</td>'
+						+'<td>'+userData[i]['type']+'</td>'
+						+'<td>'+userData[i]['user']+'</td>'
+						+'<td>'+userData[i]['addr']+'</td>'
+						
+						+'</tr>');
+						$("#notShare-list-show").append(trr);
+					 }
+					 else{
+						 
+						 var trr2 = $('<tr class="td-color">'
+						+'<td width="45"><input type="checkbox" name="name-share"/></td>'
+						+'<td width="45">'+(k++)+'</td>'
+						+'<td name="id" id="'+userData[i].id
+						+'">'+userData[i]['title']
+						+'</td>'
+						+'<td>'+userData[i]['type']+'</td>'
+						+'<td>'+userData[i]['user']+'</td>'
+						+'<td>'+userData[i]['addr']+'</td>'
+						
+						+'</tr>');	
+						     $("#Share-list-show").append(trr2);
+						 }
+				 }
+                }
+			  else if(date.retcode==-3002){
+				  window.top.backLogout();
+				  }
+			 });
+	  
+	  }
+  setSharedList();
+  
+  //选择所有已经分享的节点
+  $('.all-user-yes').click(function(){
+
+	  var status=this.checked;
+	
+	$('[name=name-share]:checkbox').each(function(index, element) 
+		{ 
+				this.checked=status;
+		})
+	  });
+  
+ //选择所有微分享的节点
+  $('.all-user').click(function(){
+	  var status=this.checked;
+	
+	$('[name=name]:checkbox').each(function(index, element) 
+		{ 
+				this.checked=status;
+		})
+	  });
+function setShareNode(){
+	//已分享
+	var ids=[];
+	var num = [];
+		var cek2 = $(".Share-list-content tr").find(":checkbox");
+		cek2.each(function(i,v){
+			var id2 = $(v).parent().parent().find("td[name='id']").attr("id");
+			num.push(id2);	
+		});
+		
+   //未分享
+	var cecks=$(".notShare-list-content tr").find(":checkbox[checked='checked']");
+	cecks.each(function(i,v){
+		var idd = $(v).parent().parent().find("td[name='id']").attr("id");
+         ids.push(idd);
+	})
+	for(var i=0;i<num.length;i++){
+			ids.push(num[i]);	
+	}
+		
+	var params={
+		'method':'set_shared_node',
+		'sessionid':$.cookie('sessionid'),
+		'ids':ids
+	}
+ $.post('/upapi',JSON.stringify(params),function(data){
+	 if(data['retcode']==0)
+	 {
+		  setSharedList();
+	 }
+	 else{
+		 }
+	 })
+	}
+$('.share').click(function(){
+	setShareNode();
+	})
+function setShareNode2(){
+	var num = [];
+		var cek2 = $("#Share-list-show tr").find(":checkbox");
+		cek2.each(function(i,v){
+			var id2 = $(v).parent().parent().find("td[name='id']").attr("id");
+			num.push(id2);	
+		});
+		var ids = [];
+		var ceck = $("#Share-list-show tr").find(":checkbox[checked='checked']");
+		if(ceck.length == 0){
+			layer.msg('请选择要取消共享的资源',{offset: 't',icon:0})
+			return false;
+		}
+		ceck.each(function(i,v){
+			var idd = $(v).parent().parent().find("td[name='id']").attr("id");
+			ids.push(idd);		
+		});		
+		//删除元素
+		for (var j=0; j<ids.length; j++) {
+			for( var i=0; i<num.length;i++){
+				if (num[i] == ids[j]) {
+					num.splice(i, 1);
+					break;
+				}
+			}
+		}	
+
+	var params={
+		'method':'set_shared_node',
+		'sessionid':$.cookie('sessionid'),
+		'ids':num
+	}
+ $.post('/upapi',JSON.stringify(params),function(data){
+	 if(data['retcode']==0)
+	 {
+		  setSharedList();
+	 }
+	 else{
+		 }
+	 })
+	
+	}
+$('.cancel').click(function(){
+	setShareNode2();
+	})
+  </script>
+</html>

@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+       <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.cookie.js"></script>
+         <link rel="stylesheet" href="css/mycore.css"/>
+         <script src="js/uc-ui.js" type="text/javascript"></script>
+<script src="js/json2.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/jquery.md5.js"></script>
+<script type="text/javascript" src="js/simplePagination/jquery.simplePagination.js"></script>
+<link href="js/simplePagination/simplePagination.css" rel="stylesheet" type="text/css"/>
+ <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+         
+<title>监控视频融合平台</title>
+</head>
+
+<body>
+   <div class="addTogether-max">
+      <div class="addTogether-box">
+        <div class="addTogether-content">
+           <span class="color-red">*</span>  <span class="node-type text">节点类型:<select name="type-area" id="select1">
+        
+           </select>
+           </span>
+           <span class="color-red">*</span>  <span class="text">节点地址:<input type="text" required class="node-address"></span><br/>
+           <span class="color-red">*</span>  <span class="text">访问用户名:<input type="text" required class='access-name' ></span>
+           <span class="color-red">*</span>  <span class="text">访问密码:<input type="password" required class="access-passwd"></span><br>
+           
+           
+        </div>
+        <span class="serach-chionid">查询通道信息</span>
+        <div class="chion-list">
+        </div>
+      </div>
+    </div>
+</body>
+  <script>
+  
+  //选择通道
+  $('.chion-ipt').live('click',function(){
+	  if(this.checked)
+	  {
+	     $('.node-content').css('border','1px solid #0bbb63'); 
+		 $('.chionMsg').css('background','rgb(196, 226, 208)');
+	  }
+	  else{
+		     $('.node-content').css('border','1px solid rgba(160, 216, 188, 0.72)');
+			 $('.chionMsg').css('background','#d8f7e4');
+		  }
+	 
+	  })
+   $(document).ready(function(e) {
+        var params={
+			'method':'get_support_types'
+			}
+		$.post('/upapi',JSON.stringify(params),function(data){
+			if(data['retcode']==0)
+			{
+				type=data['types'];
+					for(var i=0;i<type.length;++i)
+					{
+						var trr=$(
+							'<option value="'+type[i]+'">'+type[i]+'</option>'
+							)
+							$('#select1').append(trr);
+				}
+			}
+			})
+    });
+  function getChionid(d){
+	  var type=$('#select1 option:selected').val();
+	  var  nodeAddress=$('.node-address').val();
+	  var accessName=$('.access-name').val();
+	  var accessPasswd=$('.access-passwd').val();
+		  if(type.length==0 ||type=='请选择节点类型')
+		  {layer.tips('请选择节点类型','#select1'); return false;}
+		  if(nodeAddress.length==0)
+		  {layer.tips('请填写节点地址','.node-address');return false;}
+		  if(accessName.length==0)
+		  {layer.tips('请填写访问用户名','.access-name');return false;}
+		   if(accessPasswd.length==0)
+		   {layer.tips('请填写访密码','.access-passwd');return false;}
+		 var params={
+			 'method':'querydevchan',
+			 'sessionid':$.cookie('sessionid'),
+			 'type':type,
+			 'addr':nodeAddress,
+			 'user':accessName,
+			 'passw':accessPasswd
+		}
+	 $.post("/upapi",JSON.stringify(params),function(data){
+			if(data['retcode']==0)
+			{
+			var node=data['chan'];
+			for(var i=0;i<node.length;++i)
+			{
+				var trr=$(
+				   '<div class="chionMsg">'
+                   +'<div class="chion-title">'
+                   +'<input name="name" type="checkbox" class="chion-ipt"><span class="chion-text">通道信息'
+				   +i+1+'</div>'
+                   +'<div class="node-content">'
+                   +'<div class="node-name"><span class="text-color">*</span>节点名称：&nbsp;<input type="text" class="node-name-itp"></div>'
+                +'<div class="node-id"><span class="text-color">*</span>节点通道号：&nbsp;<input type="text" class="node-id-ipt"></div>'
+              +'</div>'
+           +'</div>'
+				)
+				$('.chion-list').append(trr);
+				$('.node-name-itp').val(node[i]['title']);
+				$('.node-id-ipt').val(node[i]['chanid']);
+			 }
+			}
+			else{layer.alert('失败');}
+			})
+	  }
+  $('.serach-chionid').click(function(){
+	  getChionid();
+	  })
+ function addTogether(d,nodeList){
+	 var cecks=$('[name=name]:checked');
+	 if(cecks.length==0)
+	 {
+		 layer.alert('请选择节点');
+	 }
+	   var type=$('#type option:selected').val();
+	   var addr=$('.node-address').val();
+	   var user=$('.access-name').val();
+	   var passw=$('.access-passwd').val();
+	   
+		 
+	   cecks.each(function(i,v){
+	   var title= $(this).parent().parent().find('.node-name-itp').val();
+	   var chanid=$(this).parent().parent().find('.node-id-ipt').val();
+	   if(addr.length==0){layer.alert('请填写节点地址');return false;}
+	   if(user.length==0){layer.alert('请填写访问用户名');return false;}
+	   if(passw.length==0){layer.alert('请填写访问密码');return false;}
+	   if(chanid.length==0){layer.alert('请填写节点通道id');return false;}
+	   if(title.length==0){layer.alert('请填写节点名称');return false;}
+	    var params={
+		   'method':'add_node',
+		   'sessionid':$.cookie('sessionid'),
+		   'addr':addr,
+		   'type':type,
+		   'user':user,
+		   'passw':passw,
+		   'chanid':chanid,
+		   'title':title,
+		   'pid':$.cookie('id')
+		   }
+	$.post('/upapi',JSON.stringify(params),function(data){
+		nodeList();
+		})
+		   });
+	  
+	   
+		  
+		}
+</script>
+</html>

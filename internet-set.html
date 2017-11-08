@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+ <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <link rel="stylesheet" href="css/mycore.css"/>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+      <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+</head>
+
+<body>
+   <div class="internet-setMax">
+      <div class="internet-setBox">
+      		<div class="internet-setContent">
+              <div class='internet-setTitle'><span>网络设置</span></div>
+               <div class="internet-setIpt">
+                   
+                   <div class="ip-address"><span class="red-color">*</span>
+                   ip&nbsp;地址&nbsp;&nbsp;&nbsp;：<input type="text" required class="ipt ipAddress"></div>
+                   <div class="subnet-mask"><span class="red-color">*</span>
+                   子网掩码：<input type="text" required  class="ipt subment"></div>
+                     <div class="default-gateway"><span class="red-color">*</span>
+                   默认网关：<input type="text" required  class="ipt geteway"></div>
+            </div>
+            <div class="keep-btnInter"><input type="button" value="保存"></div>
+        </div>
+      </div>
+   </div>
+</body>
+<script>
+ function getInterMsg(){
+	 var params={
+		 'method':'get_ip_addr',
+		 'sessionid':$.cookie('sessionid')
+		 }
+		$.post('/upapi',JSON.stringify(params),function(data){
+			if(data['retcode']==0)
+			{
+				if(data['is_support']==false)
+			    {
+					 layer.msg("暂不支持网络设置",{offset:'t',icon:5});
+				}
+				$('.ipAddress').val(data['ip']);
+				$('.subment').val(data['mask']);
+				$('.geteway').val(data['geteway']);
+			}
+			})
+	}
+$(document).ready(function(){
+    	getInterMsg();
+	})
+   $('.keep-btnInter').live('click',function(){
+	   var ipaddress=$('.ipAddress').val();
+	   var mask=$('.subment').val();
+	   var geteway=$('.geteway').val();
+	   var sessionid=$.cookie('sessionid');
+	   if(ipaddress.length==0)
+	   {
+		   layer.tips("请输入ip地址",'.ipAddress')
+		   return false;
+		}
+		if(mask.length==0)
+		{
+			layer.tips("请输入子网掩码",'.subment');
+			return false;
+		}
+			if(geteway.length==0)
+		{
+			
+			layer.tips("请输入默认网关",'.geteway');
+			return false;
+		}
+		var setipJson={
+			'method':'set_ip_addr',
+			'sessionid':sessionid,
+			'ip':ipaddress,
+			'mask':mask,
+			'getway':geteway
+			}
+			$.post('/upapi',JSON.stringify(setipJson),function(date){
+				if(date['retcode']==0)
+				{
+					layer.msg('设置成功',{offset:7,icon:6});
+					return true;
+				}
+				else
+				{
+					layer.msg('设置失败',{offset:7 ,icon:6});
+					return false;
+				}
+				})
+	   })
+     
+</script>
+</html>

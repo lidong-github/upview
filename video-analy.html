@@ -1,0 +1,621 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+ <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <link rel="stylesheet" href="css/mycore.css"/>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+    <script src="js/upview.js" type="text/javascript"></script>
+    <script src="js/player.js" type="text/javascript"></script>
+    <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+<title>视频监控融合系统</title>
+</head>
+
+<body>
+<div class="videAnaly-max">
+      <div class="videAnaly-box">
+          <div class="videAnaly-content">
+             	   <div class="videAnaly-nav">
+                          <div class="switch">启用<input type="checkbox"  naem="name" id='video-on' checked></div>
+                         <div class="chioce-type">检测污染类型<select class="type"><option >--请选择污染类型--</option>
+                              <option value="water">污水检测</option>
+                              <option value="smog">烟窗检测</option>
+                              <option  value="sw">固废检测</option>
+                              <option value="渣土检测">渣土检测</option>
+                              </select>
+                           </div>
+                         <div class="save-button" >保存</div>
+                         <div class="cancel-button">清除</div>
+               
+                        
+             
+                  </div> 
+              <div class="hide-area">
+                            <span class="area-title">选择区域：</span> 
+                            <span class="area-text"><input type="radio" name="area" value='1'>可摆放区域（蓝色）</span> 
+                            <span class="area-text"><input type="radio" name="area" value='2'>不可摆放区域（黄色）</span>
+                </div>
+                
+              <div class="analy-boundary">
+                   <div class="canvas-show"></div>
+                    <div class="video"></div>
+                   
+              </div>
+       	   </div>
+      </div>    
+</div>
+   
+</body>
+<script>
+
+ var waterParams;
+ var clickNum=0;
+ var water=[];
+ var smoke=[];
+ var firstArray=[];
+ var secondArray=[];
+ var solidArrayB=[];
+ var solidArrayY=[];
+//清除
+function getCanvas(){
+
+	var canvas = document.getElementsByClassName('canvas')[0];
+	if(canvas==null)
+	{
+		return  false;
+	}
+	return canvas;
+}
+
+
+$(".type").change(function(){
+	clearCanvas();
+	if($(".type").val()=='sw')
+	{
+        if($(".hide-area").is(":hidden")) 
+		{
+		   $('.hide-area').fadeIn(500);
+		}
+	}
+	else{
+		    if($(".hide-area").is(":hidden"))
+			{
+			}
+			else{
+				   $('.hide-area').fadeOut(500);
+				}
+		}
+	})
+var url = window.location.href;
+var player;
+var playNode;
+      try{
+	          url = url.substring(url.indexOf("://") + 3);
+	          url = url.substring(0, url.indexOf("/"));
+           } catch(e){};
+$('#video-on').click(function(){
+	if($('#video-on').is(':checked'))
+	{
+		$('.cancel-button').show();
+	}
+	else{
+		$('.cancel-button').hide();
+		}
+    
+	
+});
+
+function combineLine(data){
+	solidArrayB=data['key_Alert'];
+	solidArrayY=data['key_Edge'];
+	if(solidArrayB.length!=0)
+	{
+		var canvas = getCanvas();
+		var context = canvas.getContext("2d");
+		var length=solidArrayB.length;
+		context.strokeStyle= "#0576AB"; 
+		context.beginPath(); 
+		context.moveTo(solidArrayB[0][0],solidArrayB[0][1]);
+		for(var i=1;i<solidArrayB.length;++i)
+		{
+		
+		  context.lineTo(solidArrayB[i][0],solidArrayB[i][1]);
+		
+		}
+		context.stroke();
+		context.closePath();
+		lineAreaBule(); 
+	}
+	if(solidArrayY.length!=0)
+	{
+		var canvas = getCanvas();
+		var context = canvas.getContext("2d");
+		var length=solidArrayB.length;
+		context.strokeStyle= "#FF0"; 
+		context.beginPath(); 
+		context.moveTo(solidArrayY[0][0],solidArrayY[0][1]);
+		for(var i=1;i<solidArrayY.length;++i)
+		{
+		
+		  context.lineTo(solidArrayY[i][0],solidArrayY[i][1]);
+		
+		}
+		context.stroke();
+		context.closePath(); 
+		lineAreaYellow();
+	}
+	
+	
+	solidArrayY=[];
+	solidArrayB=[];
+	}
+function drawRectangle(node){
+	var paramsJson={
+		'method':'get_ana_node_info',
+		'sessionid':$.cookie('sessionid'),
+		'id':node[0].id
+		}
+	 $.post('/upapi',JSON.stringify(paramsJson),function(data){
+		if(data['retcode']==0)
+		{
+			
+			         var retNode=data['param'];
+					 if(retNode==null)
+					 {
+						 $('.hide-area').hide();
+						 $('select').val('--请选择污染类型--');
+						 $('input:checkbox:checked').attr('checked',false);
+						 $('.cancel-button').fadeOut(200);
+						 return ;
+					 }
+					 else{
+						  $('input:checkbox:checked').attr('checked',true);
+						  $('.cancel-button').fadeIn();
+						 }
+					if($(".canvas-show").find('canvas')[0]==null)
+					{
+						canvas = $('<canvas class="canvas">'+'</canvas>');
+					   $('.canvas-show').append(canvas);	
+						var wid = $('.analy-boundary').width();
+						var hei = $('.analy-boundary').height();
+						$('.canvas').attr("width",wid);
+					   $('.canvas').attr("height",hei);
+							
+					}
+			       
+					 if(canvas==null)
+					 {
+						 canvas = $('<canvas class="canvas">'+'</canvas>');
+			             $('.canvas-show').append(canvas);
+					 } 
+					
+				    if(retNode.type=='water' ||retNode.type=='smog')
+					 {
+						 var canvas = document.getElementsByClassName('canvas')[0]; 
+						 var c = canvas.getContext("2d");  
+						 c.strokeStyle= "#0576AB"; 
+						 c.strokeRect(retNode.x,retNode.y,retNode.w,retNode.h);
+						 $('.hide-area').hide();
+					 }
+					 else if(retNode.type=='sw')
+					 {
+						 $('.hide-area').fadeIn(500);
+						 combineLine(retNode)
+					 }
+					 else{
+						  $('.hide-area').hide();
+						 }
+					 
+                     $('select').val(retNode.type);
+				
+					 
+					 
+		}
+		})
+	}
+
+ function clearCanvas(){
+	 $('.canvas').remove();
+	clickNum=0;
+	firstArray=[];
+	secondArray=[];
+	solidArrayY=[];
+	solidArrayB=[];
+	 }
+function play2(node)
+  {
+	  clearCanvas();
+	  if(player!=null)
+	  {
+		  player.Stop();
+	  }
+	  playNode=node;
+	  $('.video').empty();
+	  $('.video').removeClass('live');
+	  if($("#video-ananly").hasClass('live'))
+	  {
+		player.Stop();
+		
+	  }
+	  $("#video-ananly").addClass('live');
+	  	var trr= $("<canvas name='upview' id='video-ananly' class='view-object player' type='application/x-upview'>"+"</canvas>");
+       $('.video').append(trr);
+	   
+	    var  plugin=$("#video-ananly")[0];
+	    var opt= {};
+		opt.id = node[0].id; 
+		opt.url =url;  
+		opt.user = $.cookie('user');
+		opt.passw = $.cookie('login-passw'); 
+		opt.canvas = plugin; 
+		opt.stype = 'main';
+		player=new UpViewPlayer(opt);
+		drawRectangle(node);
+		 
+  }
+
+ $('.close').live('click',function(e){
+	 if(player.length==0)
+	 {
+		 
+	 }
+	 else{
+			 player.Stop();
+			 $('.video').empty();
+			 $('.video').removeClass('live');
+			
+		 }
+	 
+ })
+ function mouseCoords(event){
+                if(event.pageX || event.pageY){
+                    return {x:event.pageX, y:event.pageY};
+                }
+                return{
+                    x:event.clientX + document.body.scrollLeft - document.body.clientLeft,
+                    y:event.clientY + document.body.scrollTop - document.body.clientTop
+                };
+            }
+ 
+ 
+ $('.cancel-button').live('click',function(){
+	clearCanvas();
+	})
+	
+
+
+//点击画圆点
+function drawArc(data){
+	$('.canvas').remove();
+	 if($(".canvas-show").find('canvas')[0]==null)
+			{
+				canvas = $('<canvas class="canvas">'+'</canvas>');
+			   $('.canvas-show').append(canvas);	
+			    var wid = $('.analy-boundary').width();
+		        var hei = $('.analy-boundary').height();
+				$('.canvas').attr("width",wid);
+		       $('.canvas').attr("height",hei);
+                    
+			}
+			var canvas = getCanvas();
+			var c3 = canvas.getContext("2d");  
+			c3.fillStyle = "#0576AB";  
+            c3.beginPath();  
+            c3.arc(data[0],data[1],2,0,Math.PI*2,true);//参数的意义：x,y分别指圆心的坐标,radius指圆的半
+            c3.closePath();  
+            c3.fill();  
+	
+	}
+//点击画矩形图
+
+
+//获取点击坐标
+
+function getClickiIndex(event){
+	var mousePos = mouseCoords(event);
+			var x = mousePos.x;
+			var y = mousePos.y;
+
+			//获取div在body中的绝对位置
+			var x1 = $(".analy-boundary").offset().left;
+			var y1 = $(".analy-boundary").offset().top;
+			//alert("div在body中的绝对位置坐标："+x1+","+y1);
+
+			//鼠标点击位置相对于div的坐标
+			var x2 = x - x1;
+			var y2 = y - y1;
+			
+			return[x2,y2];
+	}
+ function firstArrClick(event){
+	
+			var first=getClickiIndex(event);
+			firstArray.push(first);
+			drawArc(first);
+			
+	 }
+function secondClick(event){
+	var secod=getClickiIndex(event);
+			secondArray.push(secod);
+			drawArc(secod);
+	}
+
+
+//点击界面操作
+$('.analy-boundary').live('click',function(event){
+
+	if($('#video-on').is(':checked')==false)
+	{
+		layer.msg('请启用区域设置',{offset:7,icon:0})
+		return false;
+	}
+	if($('.type').val()=='--请选择污染类型--')
+	{
+		layer.msg('请选择污染类型',{offset:7,icon:5});
+		clearCanvas();
+		return false;
+	}
+	 if(clickNum==0 && ($('.type').val()=='smoke' || $('.type').val()=='water'))
+	 {
+	          firstArrClick(event); 
+			  clickNum++;
+			  
+	     }
+	
+	 else if(clickNum==1)
+		   {
+			   clickNum++;
+			   secondClick(event);
+			   var canvas = getCanvas(); 
+					 var c = canvas.getContext("2d");  
+                     c.strokeStyle= "#0576AB"; 
+					 var x=firstArray[0][0]>secondArray[0][0]?secondArray[0][0]:firstArray[0][0];
+					 var y=firstArray[0][1]>secondArray[0][1]?secondArray[0][1]:firstArray[0][1];
+					 var h=firstArray[0][1]-secondArray[0][1];
+					 var w=firstArray[0][0]-secondArray[0][0];
+					 if(h<0)
+					 {
+						 h=-h;
+					 }
+					 if(w<0)
+					 {
+						 w=-w;
+					 }
+			   var type=$('.type').val();
+			   if(type=='water')
+				{    
+					 water=[x,y,w,h];
+                     c.strokeRect(x,y,w,h);
+				}
+				else if(type=='smoke')
+				{
+					 smoke=[x,y,w,h];
+                     c.strokeRect(x,y,w,h);
+				}
+				
+		  }
+		  else if($('.type').val()=='sw'){
+			  ClickSolid(event);
+			  }
+		  
+	})
+	
+
+//污水检测 烟气检测
+function rectangleDelWith(type){
+	if(firstArray.length==0 || secondArray.length==0)
+	{
+		layer.msg('请选择矩形区域',{offest:7,icon:5})
+	}
+						 var waterParams={
+						  'type':type,
+						  'x':water[0],
+						  'y':water[1],
+						  'w':water[2],
+						  'h':water[3]
+						  
+						  };
+			
+					 var params={
+						 'method':'set_ana_node_info',
+						 'sessionid':$.cookie('sessionid'),
+						 'id':playNode[0].id,
+						 'enable':true,
+						 'param':waterParams
+						 };
+					 $.post('/upapi',JSON.stringify(params),function(data){
+						 
+						 if(data.retcode==0)
+						 {
+							   layer.alert('成功');
+						 }
+						 else{layer.alert('失败');}
+						 })
+					
+	} 
+//获取蓝色画布
+ function getCanvasB(){
+	 	var canvas = document.getElementsByClassName('canvasB')[0];
+			if(canvas==null)
+			{
+				return  false;
+			}
+			return canvas;
+	 
+}
+//获取黄色画布
+  function getCanvasY(){
+	var canvas = document.getElementsByClassName('canvas')[0];
+		if(canvas==null)
+		{
+			return  false;
+		}
+		return canvas;
+	 }
+//画线段
+ function drawLine(arrIndex,context){
+	 var length=arrIndex.length;
+	 
+	 if(length<2)
+	 {
+		 return ;
+	 }
+	/* if($(".canvas-show").find('canvas')[0]==null)
+	  {
+		  var canvas = $('<canvas class="canvas">'+'</canvas>');
+		 $('.canvas-show').append(canvas);	
+		  var wid = $('.analy-boundary').width();
+		  var hei = $('.analy-boundary').height();
+		  alert(wid);
+		  alert(hei); 
+		  $('.canvas').attr("width",wid);
+		 $('.canvas').attr("height",hei);
+			  
+	  } 
+	  
+	var canvas = getCanvas();
+	var c = canvas.getContext("2d"); */
+	context.moveTo(arrIndex[length-2][0],arrIndex[length-2][1]);
+	context.lineTo(arrIndex[length-1][0],arrIndex[length-1][1]);
+    context.stroke();
+	
+	  }
+//固体物质检测
+
+function ClickSolid(event){
+	/*$('.canvas').not(':gt(0)').remove();*/
+			var index=getClickiIndex(event);
+			if($('input[name=area]:checked').val()==1)
+			 {
+				  if($(".canvas-show").find('canvas')[0]==null)
+					{
+						var canvas = $('<canvas class="canvas">'+'</canvas>');
+					   $('.canvas-show').append(canvas);	
+						var wid = $('.analy-boundary').width();
+						var hei = $('.analy-boundary').height();
+						$('.canvas').attr("width",wid);
+					   $('.canvas').attr("height",hei);
+							
+					}
+				var canvas = getCanvas();
+				var context = canvas.getContext("2d"); 
+				 context.fillStyle= "#0576AB";
+                 solidArrayB.push(index);
+				  context.beginPath();  
+				  context.arc(index[0],index[1],2,0,Math.PI*2,true);
+				  context.closePath();  
+                  context.strokeStyle= "#0576AB";
+				  drawLine(solidArrayB,context);
+                 context.fill(); 
+			 }
+			 else if($('input[name=area]:checked').val()==2)
+			 {
+				 if($(".canvas-show").find('canvas')[0]==null)
+					{
+						var canvas = $('<canvas class="canvas">'+'</canvas>');
+					   $('.canvas-show').append(canvas);	
+						var wid = $('.analy-boundary').width();
+						var hei = $('.analy-boundary').height();
+						$('.canvas').attr("width",wid);
+					   $('.canvas').attr("height",hei);
+							
+					}
+					var canvas = getCanvas();
+				   var context = canvas.getContext("2d");
+				   context.fillStyle= "#FF0"; 
+				   solidArrayY.push(index);
+				   context.beginPath();  
+				   context.arc(index[0],index[1],2,0,Math.PI*2,true);
+				   context.closePath();  
+				   context.fill()
+				    context.strokeStyle= "#FF0"; 
+				   //连接现在点击的与上一个点击点
+				   drawLine(solidArrayY,context);
+			 }
+			 
+			
+	}
+
+
+function lineAreaBule(){
+
+	//蓝色区域				
+	var canvasBule = getCanvas();
+    var contextB = canvasBule.getContext("2d");
+	var lengthB=solidArrayB.length;
+	contextB.strokeStyle= "#0576AB"; 
+	contextB.beginPath();  
+	contextB.moveTo(solidArrayB[0][0],solidArrayB[0][1]);
+	contextB.lineTo(solidArrayB[lengthB-1][0],solidArrayB[lengthB-1][1]);
+	contextB.closePath(); 
+	contextB.stroke();
+	 
+	
+}
+function lineAreaYellow(){
+	//黄色区域
+	var canvasYellow = getCanvas();
+    var contextY = canvasYellow.getContext("2d");
+	var lengthY=solidArrayY.length;
+	contextY.strokeStyle= "#FF0"; 
+	contextY.beginPath(); 
+	contextY.moveTo(solidArrayY[0][0],solidArrayY[0][1]);
+	contextY.lineTo(solidArrayY[lengthY-1][0],solidArrayY[lengthY-1][1]);
+	contextY.closePath();
+    contextY.stroke();
+	}
+function ClickSolidDelWith(type){
+	
+	if(solidArrayY.length==0 || solidArrayB.length==0)
+	{
+		layer.msg('请选择两种不同的矩形区域',{offest:7,icon:5})
+	}
+	
+	
+	lineAreaBule();
+	lineAreaYellow();
+	var solidParams={
+		'type':type,
+		'key_Alert':solidArrayB,
+		'key_Edge':solidArrayY
+		}
+	 var params={
+		   'method':'set_ana_node_info',
+		   'sessionid':$.cookie('sessionid'),
+		   'id':playNode[0].id,
+		   'enable':true,
+		   'param':solidParams
+		   };
+	   $.post('/upapi',JSON.stringify(params),function(data){
+		   
+		   if(data.retcode==0)
+		   {
+				 layer.msg('设置成功',{offset:7,icon:6});
+		   }
+		   else{layer.alert('失败');}
+		   })
+	  
+	}
+
+ $('.save-button').click(function(){
+	  
+		  var type=$('.type').val();
+			 if(type=='water')
+			 {
+				 rectangleDelWith('water');
+			 }
+			 else if(type=='smoke')
+			 {
+				 rectangleDelWith('smoke');
+			 }
+			 else if(type=="sw")
+			 {
+				 ClickSolidDelWith('sw');
+			 }
+	
+	
+ })
+</script>
+
+
+</html>

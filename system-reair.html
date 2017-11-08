@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+ <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <link rel="stylesheet" href="css/mycore.css"/>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+</head>
+
+<body>
+    <div class="system-reairMax">
+      <div class="system-reairBox">
+      		<div class="system-reairContent">
+                    <div class='system-reairTitle'><span>系统维护</span></div>
+                    <div class="system-reairControl">
+                    <span >重启设备:<input type="button" value="重启" class="restart"></span>
+             </div>
+            </div>
+      </div>
+   </div>
+</body>
+<script>
+ $('.restart').live('click',function(){
+	 var restartJson={
+		 'method':'reboot',
+		 'sessionid':$.cookie('sessionid')
+		 }
+     $.post('/upapi',JSON.stringify(restartJson),function(date){
+	 if(date['retcode']==0)
+	 {
+		  layer.msg("重启成功",{offset:'t',icon:6});
+	}
+	else{
+		   layer.msg("重启失败",{offset:'t',icon:5});
+		}
+	 })
+	 })
+
+</script>
+</html>

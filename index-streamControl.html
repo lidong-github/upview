@@ -1,0 +1,231 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<link rel="stylesheet" text="text/css" href="css/index.css">
+<script src="js/player.js" type="text/javascript"></script>
+<script src="js/uc-ui.js" type="text/javascript"></script>
+<script src="js/upview.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/jquery.md5.js"></script>
+</head>
+<body>
+
+
+<div class="list-max">
+    <div class="video-show video-show4">
+          <ul id="video-show">
+        <li count="1" class="selected"></li>
+                <li count="2" >
+                 
+                </li>
+                <li count="3">
+                </li>
+                <li count="4">
+                </li>
+            </ul>
+        </div>
+
+              <!--右侧栏-->
+              <div id="aside">
+              <!--云台text-->
+               <div id="ptz"><img class ="ptz-icon"src="img/video.png" width="16" height="16"> <span>云台监控</span></div>
+                  
+                   <ul id="ptz-control">
+                      <li id="ptz-one"> <img src="img/li-img1.png" width="40" height="40"></li>
+                     <!-- 上-->
+                      <li id="ptz-up"><img title="向上" src="img/li-img22.png" width="42" height="40"></li>
+                      <li id="ptz-three"><img src="img/li-img3.png" width="40" height="40"></li>
+                    <!--  左-->
+                      <li id="ptz-left"><img title="向左" src="img/li-img4.png" width="40" height="42"></li>
+                      <li id="ptz-five"><img src="img/li-img5.png" width="42" height="42"></li>
+                    <!--  右-->
+                      <li id="ptz-right"><img title="向右" src="img/li-img6.png" width="40" height="42"></li>
+                      <li id="ptz-seven"><img src="img/li-img7.png" width="40" height="40"></li>
+                    <!--  下-->
+                      <li id="ptz-down"><img  title="向下" src="img/li-img8.png" width="42" height="40"></li>
+                      <li id="ptz-nine"><img src="img/li-img9.png" width="40" height="40"></li>
+                   </ul>
+            <!--码流选择界面-->
+            <div id="set-mark" ><img src="img/video.png" width="16" height="16"><span class="mark-text">设置默认码流</span></div>
+            <div id="choice-mark">
+                   <form id="mark-area">
+                     <input class='mark' type="radio"  name="mark" value="main">&nbsp;超清</br>
+                     <input class='mark' type="radio" name="mark" value="sub" checked>&nbsp;普清 </br>
+                     <input class='mark' type="radio" name="mark" value="mobile">&nbsp;流畅
+                   </form>
+                    </div>
+                  </div>
+                </div>
+           </div>
+        </div>
+        </div>
+
+</body>
+<script>
+ var plugin;
+ var player=[];
+ var num;
+ var playIndex;
+var index;
+ var playNode;
+  var url = window.location.href;
+      try{
+	          url = url.substring(url.indexOf("://") + 3);
+	          url = url.substring(0, url.indexOf("/"));
+           } catch(e){};
+ 
+ 
+ function setA(){
+	var a = 0;
+	for( var i =0; i<$("#video-show li").length;i++){
+		if($("#video-show li").eq(i).hasClass("selected")){
+			a = i;
+			break;
+		}	
+	}
+	return a;	
+}
+
+
+$('.video-show ul li').click(function(){
+	 $(this).addClass('selected').siblings().removeClass('selected');
+	/* $(this).addClass("live").siblings().removeClass("live");*/
+	 getIndex();
+	}) 
+	
+//获取码流
+  function getMark(){
+	  return $('input[name="mark"]:checked').val();
+	  
+	  }
+	
+
+
+function getIndex(){
+	
+	var live;
+	  for( var i =0; i<$("#video-show li").length;i++){
+		if($("#video-show li").eq(i).hasClass("selected")==true)
+		{
+			if($(this).hasClass('live'))
+			{
+				playIndex=i;
+		    }
+			else{
+				   playIndex=i;
+				}
+		}
+		}
+		return playIndex;
+	
+}
+ function play(node){
+	 playNode=node;
+	 var li = $("<span class='video-title'>"+node[0].title+"</span>"+"<span class='close' title='关闭'>"+"</span>"
+					+"<div class='index-iframe' id='iframe'>"
+					+"<canvas name='upview' class='view-object player' type='application/x-upview' width='100%' height='100%'>"
+					+"</canvas>"
+				    +"</div>");
+	index=getIndex();
+	var markStype=getMark();
+	 $("#video-show li").eq(index).empty().append(li);
+	 $("#video-show li").eq(index).addClass('selected').siblings().removeClass('selected');
+	  $("#video-show li").eq(index).addClass('live').siblings().removeClass('live');
+	  var plugin=$("#video-show li").eq(index).find(".player")[0];
+	 
+	  try{
+		 var opt= {};
+		opt.id = node[0].id; 
+		opt.url =url;  
+		opt.user = $.cookie('user');
+		opt.passw =$.cookie('login-passw'); 
+		opt.canvas = plugin; 
+		opt.stype = markStype;
+		if(player[index]!=null)
+		{
+			player[index].Stop();
+		}
+		player[index]=new UpViewPlayer(opt);
+		
+	  }
+	  catch(e){}
+	}
+	
+//关闭
+  function stopStream(){
+	  
+	  }
+    $('.close').live('click',function(e){
+		 for( var i =0; i<$("#video-show li").length;i++){
+		 if($("#video-show li").eq(i).hasClass("selected"))
+		 {
+			player[i].Stop();
+			$(this).removeClass('live');
+		}
+
+		 }
+		$(this).siblings().remove();
+		$(this).remove();
+		
+		
+		})
+		
+		
+		
+//云台控制参数传递
+$('#ptz-up').mousedown(function(){
+	player[playIndex].PtzUp(3);
+	
+	})
+$('#ptz-up').mouseup(function(){
+	player[playIndex].PtzUp(0);
+	})
+$('#ptz-right').mousedown(function(e){
+	player[playIndex].PtzRight(3);
+})
+$('#ptz-right').mouseup(function(){
+	player[playIndex].PtzRight(0);
+})
+$('#ptz-left').mousedown(function(){
+	player[playIndex].PtzLeft(3);
+})
+$('#ptz-left').mouseup(function(){
+	player[playIndex].PtzLeft(0);
+})
+$('#ptz-down').mousedown(function(){
+	player[playIndex].PtzDown(3);
+})
+$('#ptz-down').mouseup(function(){
+	player[playIndex].PtzDown(0);
+})
+
+$('.mark').click(function(){ 
+    markStype=$(this).val();
+	for( var i =0; i<$("#video-show li").length;i++){
+		 if($("#video-show li").eq(i).hasClass("selected"))
+		 {
+			 if($("#video-show li").eq(i).hasClass('live'))
+			 {
+				 player[i].Stop();
+		         $(this).removeClass('live');
+				 play(playNode)
+			 }
+			
+		}
+	}
+	/*if(player[playIndex].length==0)
+	{
+	}
+	else{
+		 player[playIndex].Stop();
+		 ;
+		}*/
+	})
+
+//切换码流
+  
+</script>
+</html>

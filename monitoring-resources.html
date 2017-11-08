@@ -1,0 +1,246 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+		<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.cookie.js"></script>
+        <link rel="stylesheet" href="css/mycore.css"/>
+        <script src="js/uc-ui.js" type="text/javascript"></script>
+        <link href="css/core.css" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="layer-v3.1.0/layer/layer.js"></script>
+        <script type="text/javascript" src="js/simplePagination/jquery.simplePagination.js"></script>
+<link href="js/simplePagination/simplePagination.css" rel="stylesheet" type="text/css"/>
+<body>
+      <div class="mon-resourceBax">
+        <div class='mon-resourceContent'>
+        
+           <div class='mon-title'>
+            <span title="新增" class="add text"><img src="img/icon/pan-add.png" width="16" height="16">新增</span>
+            <span title="批量添加" class="add-together text"><img src="img/icon/pan-add.png" width="16" height="16">批量新增</span>
+            <span title="修改" class="fix text"><img src="img//icon/pan-edit.png">修改</span>
+            <span title='删除' class="del text"><img src="img/icon/pan-del.png" width="16" height="16">删除</span>
+            <span title="关联" class="correlation text"><img src="img/icon/pan-import.png" width="16" height="16">关联</span>
+           </div>
+           <table class="mon-list-title" >
+             <tr>
+                <th width="45">序号</th>
+                <th width="45"><input type='checkbox' class='title-ipt'></th>
+                <th name="name">节点id</th>
+                <th  name="name">节点名称</th>
+                <th  name="name">节点地址</th>
+                <th  name="name">访问用户名</th>
+                <th  name="name">访问密码</th>
+                <th  name="name">节点通道号</th>
+                <th  name="name">节点状态</th>
+             </tr>
+          
+           
+           </table>
+           <div class="list-tobdy"> 
+              <div class="list-title">
+                <table class="mon-list-title" id="list-show">
+                </table>
+              </div>
+              
+           </div>
+         <div class="grid-page">
+               <div id="pagation"></div>
+            </div>
+        </div>
+      </div>
+</body>
+
+<script>
+var nodes=[];
+var updateId;
+function getNodeById(id) {
+		for (var i=0;i<nodes.length;i++) {
+			if (nodes[i].id == id) {
+				return nodes[i];
+			}
+		}
+	}	
+
+   function nodeList(){
+	   $('#list-show').empty();
+	    var monJsonList={
+			'method':'get_node',
+			'sessionid':$.cookie('sessionid'),
+			'id':$.cookie('id')
+			}
+		$.post('/upapi',JSON.stringify(monJsonList),function(date){
+			if(0==date.retcode)
+			{
+				nodes =date['node'];
+				var node=date['node'];
+				initPagation(nodes.length);
+			}
+			else if(date["retcode"]==-3002)
+			{
+				window.top.backLogout();
+			}
+			});
+	   }
+	$(document).ready(function(e) {
+        nodeList();
+    });
+
+//选择全部
+$('.title-ipt').click(function(){
+	var status=this.checked;
+	
+	$('[name=name]:checkbox').each(function(index, element) 
+		{ 
+				this.checked=status;
+		})
+		
+    });
+//添加
+$('.add').live('click',function(){
+		var dia_log = {
+			"width":"600",	
+			"height":"250",
+			"title":"新增",
+			"url":"addNode.html",
+			save:function(){
+				d.iframe.contentWindow.addNode(d,nodeList);
+				}
+		}
+		d = dialog(dia_log);
+	})
+//删除
+$('.del').live('click',function(){
+	//todo
+	var cecks = $(".mon-list-title").find("tr").find(":checkbox[checked='checked']");
+	if(cecks.length==0)
+	{
+		layer.msg('请先选择节点',{offset:7,icon:0});
+		return false;
+	}
+	var i=0;
+	var dia_log = {
+			"width":"300",	
+			"height":"150",
+			"title":"删除",
+			"url":"del-node.html",
+		     	save:function(){
+				cecks.each(function(){
+				
+				var id =$(this).parent().parent().find("td[name='title']").attr('id');
+				if(id!=null)
+				{
+					
+					d.iframe.contentWindow.del_node(d,id,nodeList);
+				}
+				
+			    })
+				
+				}
+			}
+		d = dialog(dia_log);
+		
+	})
+//修改
+$('.fix').live('click',function(){
+	var cecks = $(".mon-list-title").find("tr").find(":checkbox[checked='checked']");
+	var id = cecks.parent().parent().find("td[name='title']").attr("id");
+	updateId=id;
+	if(cecks.length==0 || cecks.length>1)
+	{
+		layer.msg('请选择数据',{offset:7,icon:0});
+		return false;
+	}
+	var dia_log = {
+			"width":"600",	
+			"height":"250",
+			"title":"修改",
+			"url":"node-fix.html",
+			save:function(){
+				d.iframe.contentWindow.nodeFix(d,getNodeById(id),nodeList);
+			    }	
+		}
+		d = dialog(dia_log);
+	})
+//批量添加 
+$('.add-together').live('click',function(){
+	//todo
+	var dia_log = {
+			"width":"650",	
+			"height":"600",
+			"title":"批量新增",
+			"url":"add-together.html",
+			save:function(){
+				d.iframe.contentWindow.addTogether(d,nodeList);
+				}
+		}
+		d = dialog(dia_log);
+	})
+//关联
+$('.correlation').live('click',function(){
+	//todo
+	var dia_log = {
+			"width":"900",	
+			"height":"500",
+			"title":"关联",
+			"url":"connected.html",
+			
+		}
+		d = dialog(dia_log);
+	})
+//分页
+var cp=1;//当前页
+var pageSize = 25;  //定义每页显示条数
+function initPagation(total) {
+	$("#pagation").pagination({
+		items: total,  
+		itemsOnPage: pageSize,
+		pages: 0,
+		displayedPages: 5,
+		edges: 2,
+		currentPage: 1,
+		hrefText: '#page-',
+		prevText: '上一页',
+		nextText: '下一页',
+		ellipseText: '&hellip;',
+		cssStyle: 'light-theme',
+		selectOnClick: true,
+	onPageClick: function(pageNumber) {
+			$("#list-show").empty();
+			cp=pageNumber;
+			setList((pageNumber - 1)*pageSize, pageNumber*pageSize);
+		},
+		onInit: function() {
+			if(cp==1){
+				setList(0, pageSize);
+			}else{
+				setList((cp - 1)*pageSize, cp*pageSize);
+			}
+		}
+	});
+function setList(start,end) {
+	if(nodes.length < end) {
+		end = nodes.length;
+	}
+	for(var i=start;i<end;i++) {
+		var status='在线';
+					if(nodes[i]['is_online']==0)
+					{
+						status='离线';
+					}
+		 var trr = $('<tr class="allNode-list">'
+					+'<td width="45"  height="25">'+(i+1)+'</td>'
+					+'<td width="45"><input type="checkbox" name="name"></td>'
+					+'<td>'+nodes[i]['id']+'</td>'
+					+'<td name="title" id="'+nodes[i].id+'">'+nodes[i].title+'</td>'
+					+'<td name="addr">'+nodes[i]['addr']+'</td>'
+					+'<td name="user">'+nodes[i]['user']+'</td>'
+					+'<td name="passw">'+nodes[i]['passw']+'</td>'
+					+'<td name="chanid">'+nodes[i]['chanid']+'</td>'
+					+'<td>'+status+'</td>'
+					+'</tr>');	
+		$("#list-show").append(trr);
+	}
+}
+}
+</script>
+</html>

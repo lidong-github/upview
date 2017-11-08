@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>视频融合服务系统</title>
+<script src="js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script src="js/uc-ui.js" type="text/javascript"></script>
+<script src="js/json2.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/simplePagination/jquery.simplePagination.js"></script>
+<link href="js/simplePagination/simplePagination.css" rel="stylesheet" type="text/css"/>
+<link href="css/core.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">
+	var session = $.cookie("sessionid");
+	var cp=1;//当前页
+	/*得到用户列表数据*/
+	$(function(){
+		userList();
+	});	
+	var userData = null;
+	function userList(){
+			var params ={
+			"method":"list_all_user",
+			"sessionid":session	
+		}
+		$.post("/upapi",JSON.stringify(params),function(data){
+			
+			if(data.retcode==0){
+				$("#list-show").empty();
+				userData = data.users;
+				initPagation(userData.length);
+			}else{
+				window.location.href="/my_login.html";			
+			}	
+		});		
+	}
+	//修改密码
+	$("#reset").live("click", function(){
+		//判断选中的那一条数据
+		var cecks = $("#list-show").find("tr").find(":checkbox[checked='checked']");
+		//一次只能重置一个用户
+		if(cecks.length > 1){
+			alert("一次只能重置一条数据!"); 
+			return false;	
+		}else if(cecks.length == 0){
+			alert("请选择重置用户!"); 
+			return false;	
+		}
+		var d =null;
+		var name = cecks.parent().parent().find("td[name='name']").text();
+		//传递参数 
+		var dia_log = {
+			"width":"400",	
+			"height":"200",
+			"title":"重置密码",
+			"url":"resetPasswd.html", 
+			save:function(){
+				d.iframe.contentWindow.resetPasswd(d,name,userList);
+			}	
+		}
+		d = dialog(dia_log);
+	});
+	
+	//删除
+	$("#delete-password").live("click",function(){
+		var cecks = $("#list-show").find("tr").find(":checkbox[checked='checked']");
+		if(cecks.length == 0){
+			alert("请选择一条数据!");
+			 return false;	
+		}
+		var d =null;
+		var dia_log = {
+			"width":"300",	
+			"height":"150",
+			"title":"删除用户",
+			"url":"userDel.html", 
+			save:function(){
+				cecks.each(function(index,ele){
+				var name = $(this).parent().parent().find("td[name='name']").text();
+				d.iframe.contentWindow.delUser(d,name,userList);
+				})
+			}	
+		}
+		d = dialog(dia_log);
+	});
+	
+//控件分页
+var pageSize = 20;  //定义每页显示条数
+function initPagation(total) {
+	$("#pagation").pagination({
+		items: total,  
+		itemsOnPage: pageSize,
+		pages: 0,
+		displayedPages: 5,
+		edges: 2,
+		currentPage: 1,
+		hrefText: '#page-',
+		prevText: '上一页',
+		nextText: '下一页',
+		ellipseText: '&hellip;',
+		cssStyle: 'light-theme',
+		selectOnClick: true,
+		onPageClick: function(pageNumber) {
+			$("#list-show").empty();
+			cp=pageNumber;
+			setList((pageNumber - 1)*pageSize, pageNumber*pageSize);
+		},
+		onInit: function() {
+			if(cp==1){
+				setList(0, pageSize);
+			}else{
+				setList((cp - 1)*pageSize, cp*pageSize);
+			}
+		}
+	});
+}
+
+/*列表显示*/
+function setList(start,end) {
+	if(userData.length < end) {
+		end = userData.length;
+	}
+	for(var i=start;i<end;i++) {
+		if(i%2 ==0){
+			var trr = $('<tr class="td-color">'
+				+'<td width="40">'+(i+1)+'</td>'
+				+'<td width="35"><input type="checkbox"/></td>'
+				+'<td name="name">'+userData[i]+'</td>'
+			+'</tr>');	
+		}else{
+			var trr = $('<tr>'
+				+'<td width="40">'+(i+1)+'</td>'
+				+'<td width="35"><input type="checkbox"/></td>'
+				+'<td name="name">'+userData[i]+'</td>'
+			+'</tr>');		
+		}
+		$("#list-show").append(trr);
+	}
+}
+//新增用户
+function addUser(){
+	var d = null;
+	var dia = {
+		"width":550,	
+		"height":250,
+		"title":"新增用户",
+		"url":"add-User.html", 
+		save:function(){
+			d.iframe.contentWindow.add_user(d,userList);
+		}		
+	}
+	d = dialog(dia);
+}
+$("#addUser").live("click",function(){
+	addUser();	
+});	
+
+</script>
+</head>
+
+				
+<body>
+<div class="list-max-div">      
+    <!--  查询区域 -->  
+  	<div class="list-search hide">
+    	<div class="search-top-title"><span class="search-icon"></span>查询</div>
+        <div class="list-search-content">
+            <div class="search-top-div">
+                <table class="search-table">
+                    <tr>
+                        <th>用户名：</th>
+                        <td>
+                            <input type="text" class="search-ipt"/>
+                        </td>
+                        <th>案件编号：</th>
+                        
+                        <td>
+                            <input type="text" class="search-ipt"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>开始时间：</th>
+                        <td>
+                             <input type="text" class="search-ipt-time"/>
+                        </td>
+                        <th>结束时间：</th>
+                        <td>
+                             <input type="text" class="search-ipt-time"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="search-top-button">
+                <span class="btn btn-search"><span class="btn-img"></span><span class="btn-title">查询</span></span>
+            </div>
+        </div>
+    </div>
+    
+    <!--  列表显示 -->
+    <div class="list-list">
+        <!--  列表操作栏区域  -->
+        <div class="list-nav">
+            <div class="panelbar">
+                <button class="panelbar-add" id="addUser"><span class="icon"></span>新增</button>
+                <button class="panelbar-del" id="delete-password"><span class="icon"></span>删除</button>
+                <a href="javascript:void(0);" target="index-iframe"><button class="panelbar-upd" id="reset"><span class="icon"></span>重置密码</button></a>
+            </div>
+        </div>
+        <!--数据列表区域-->
+        <div class="grid">
+            <div class="grid-header">
+                <div class="grid-tab-thead-father">
+                    <table class="grid-list">
+                        <tr>
+                        	 <th width="40">序号</th>
+                            <th width="35"><input type="checkbox"/></th>
+                            <th>用户名</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="grid-tbody">
+                <div class="grid-tab-tbody-father">
+                    <table class="grid-list" id="list-show">
+                    </table>
+                </div>
+            </div>
+            
+            <!--  分页 -->
+            <div class="grid-page">
+               <div id="pagation"></div>
+            </div>
+        </div>
+        <!-- 列表end  -->
+    </div>
+</div>
+</body>
+</html>
