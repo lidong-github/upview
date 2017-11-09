@@ -111,6 +111,10 @@ function combineLine(data){
 	if(solidArrayB.length!=0)
 	{
 		var canvas = getCanvas();
+		if(canvas==false)
+		{
+			return false;
+		}
 		var context = canvas.getContext("2d");
 		var length=solidArrayB.length;
 		context.strokeStyle= "#0576AB"; 
@@ -129,6 +133,10 @@ function combineLine(data){
 	if(solidArrayY.length!=0)
 	{
 		var canvas = getCanvas();
+		if(canvas==false)
+		{
+			return false;
+		}
 		var context = canvas.getContext("2d");
 		var length=solidArrayB.length;
 		context.strokeStyle= "#FF0"; 
@@ -298,6 +306,10 @@ function drawArc(data){
                     
 			}
 			var canvas = getCanvas();
+			if(canvas==false)
+			{
+				return false;
+			}
 			var c3 = canvas.getContext("2d");  
 			c3.fillStyle = "#0576AB";  
             c3.beginPath();  
@@ -346,27 +358,31 @@ $('.analy-boundary').live('click',function(event){
 
 	if($('#video-on').is(':checked')==false)
 	{
-		layer.msg('请启用区域设置',{offset:7,icon:0})
+		layer.msg('请启用区域设置',{offset:7,icon:0,time:500})
 		return false;
 	}
 	if($('.type').val()=='--请选择污染类型--')
 	{
-		layer.msg('请选择污染类型',{offset:7,icon:5});
+		layer.msg('请选择污染类型',{offset:7,icon:5,time:500});
 		clearCanvas();
 		return false;
 	}
-	 if(clickNum==0 && ($('.type').val()=='smoke' || $('.type').val()=='water'))
+	 if(clickNum==0 && ($('.type').val()=='smog' || $('.type').val()=='water'))
 	 {
 	          firstArrClick(event); 
 			  clickNum++;
-			  
-	     }
+			  return;
+	  }
 	
 	 else if(clickNum==1)
 		   {
 			   clickNum++;
 			   secondClick(event);
-			   var canvas = getCanvas(); 
+			   var canvas = getCanvas();
+				   if(canvas==false)
+					{
+						return false;
+					} 
 					 var c = canvas.getContext("2d");  
                      c.strokeStyle= "#0576AB"; 
 					 var x=firstArray[0][0]>secondArray[0][0]?secondArray[0][0]:firstArray[0][0];
@@ -387,7 +403,7 @@ $('.analy-boundary').live('click',function(event){
 					 water=[x,y,w,h];
                      c.strokeRect(x,y,w,h);
 				}
-				else if(type=='smoke')
+				else if(type=='smog')
 				{
 					 smoke=[x,y,w,h];
                      c.strokeRect(x,y,w,h);
@@ -415,7 +431,10 @@ function rectangleDelWith(type){
 						  'h':water[3]
 						  
 						  };
-			
+			if(playNode==null)
+			{
+				return false;
+			}
 					 var params={
 						 'method':'set_ana_node_info',
 						 'sessionid':$.cookie('sessionid'),
@@ -427,9 +446,9 @@ function rectangleDelWith(type){
 						 
 						 if(data.retcode==0)
 						 {
-							   layer.alert('成功');
+							   layer.alert('成功',{time:1000,icon:6});
 						 }
-						 else{layer.alert('失败');}
+						 else{layer.alert('失败',{time:1000,icon:5});}
 						 })
 					
 	} 
@@ -498,6 +517,10 @@ function ClickSolid(event){
 							
 					}
 				var canvas = getCanvas();
+				if(canvas==false)
+				{
+					return false;
+				}
 				var context = canvas.getContext("2d"); 
 				 context.fillStyle= "#0576AB";
                  solidArrayB.push(index);
@@ -541,6 +564,10 @@ function lineAreaBule(){
 
 	//蓝色区域				
 	var canvasBule = getCanvas();
+	if(canvasBule==false)
+	{
+		return false;
+	}
     var contextB = canvasBule.getContext("2d");
 	var lengthB=solidArrayB.length;
 	contextB.strokeStyle= "#0576AB"; 
@@ -555,6 +582,10 @@ function lineAreaBule(){
 function lineAreaYellow(){
 	//黄色区域
 	var canvasYellow = getCanvas();
+	if(canvasYellow==false)
+	{
+		return false;
+	}
     var contextY = canvasYellow.getContext("2d");
 	var lengthY=solidArrayY.length;
 	contextY.strokeStyle= "#FF0"; 
@@ -569,8 +600,11 @@ function ClickSolidDelWith(type){
 	if(solidArrayY.length==0 || solidArrayB.length==0)
 	{
 		layer.msg('请选择两种不同的矩形区域',{offest:7,icon:5})
+		return false;
 	}
-	
+	if(playNode==null){
+		
+		return false;}
 	
 	lineAreaBule();
 	lineAreaYellow();
@@ -592,7 +626,7 @@ function ClickSolidDelWith(type){
 		   {
 				 layer.msg('设置成功',{offset:7,icon:6});
 		   }
-		   else{layer.alert('失败');}
+		   else{layer.alert('失败',{time:1000});}
 		   })
 	  
 	}
