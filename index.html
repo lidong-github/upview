@@ -117,11 +117,77 @@
         </div>
          <!--首页底部-->
          <div id="footer"> <span id="copyright">版权所有：重庆扬讯软件技术股份有限公司 当前版本号 <span class="version"></span></span></div>
+         
     </div>
+    <div style="display:none">
+        	<object id="checkObject" type='application/x-upview'></object>
+        </div>
+         <div style="display:none">
+        	<canvas id="checkCanvas" type='application/x-upview'></canvas>
+        </div>
 </body>
 
 
 <script type="text/javascript">
+$(function(){
+	$('.nav:gt(1)').hide();
+	})
+
+function isIE(show){
+		var pp = document.getElementById("checkCanvas");
+		var unde = typeof(pp.getContext);
+		if(show){
+			var fla = false;
+			var plugin=document.getElementById("checkObject");
+			if(!!window.ActiveXObject || "ActiveXObject" in window){
+				if(typeof(plugin.version) == "undefined" && unde == 'undefined') {
+					alert("您没有安装upview视频控件，导致不能播放视频，请先下载upvie控件！");	
+					window.location.href = "/UpViewWeb.exe";
+				}else{
+					fla = true;
+				}
+			}else{
+				//监测ie外浏览器安装插件				
+				if(navigator.plugins){
+					for(var i=0; i<navigator.plugins.length; i++){
+						if(navigator.plugins[i].name.toLowerCase().indexOf("upview")>=0){
+							fla = true;
+						}
+					}	
+				}
+				if(fla == false && unde == 'undefined'){
+					alert("您没有安装upview视频控件，导致不能播放视频，请先下载upvie控件！");		
+					window.location.href = "/UpViewWeb.exe";
+				}
+			}	
+			return fla;	
+		}else{
+			var fla = false;
+			var plugin=document.getElementById("checkObject");
+			if(!!window.ActiveXObject || "ActiveXObject" in window){
+				if(typeof(plugin.version) == "undefined" && unde == 'undefined') {
+					alert("您没有安装upview视频控件，导致不能播放视频，请先下载upvie控件！");	
+					window.location.href = "/UpViewWeb.exe";
+				}else{
+					fla = true;
+				}
+			}else{
+				//监测ie外浏览器安装插件
+				if(navigator.plugins){
+					for(var i=0; i<navigator.plugins.length; i++){
+						if(navigator.plugins[i].name.toLowerCase().indexOf("upview")>=0){
+							fla = true;
+						}
+					}	
+				}
+				if(fla == false && unde == 'undefined'){
+					alert("您没有安装upview视频控件，导致不能播放视频，请先下载upvie控件！");		
+					window.location.href = "/UpViewWeb.exe";
+				}
+			}	
+			return fla;	
+		}
+	}
 $(window).resize(function() {
 	setHeight();
 	})
