@@ -130,6 +130,7 @@ function getIndex(){
 	 var passwd=$.cookie('login-passw');
 	var markStype=getMark();
 	 if(ff){
+		 alert(1);
 		var li = $("<span class='video-title'>"+video_title+"</span>"+"<span class='close' title='关闭'>"+"                  </span>"+"<div class='index-iframe' id='iframe'>"+"<object name='upview' class='view-object                  player' type='application/x-upview' width='100%' height='100%'>"+"</object>"+"</div>");
 		
 				 $("#video-show li").eq(index).empty().append(li);

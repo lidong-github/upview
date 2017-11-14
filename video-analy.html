@@ -47,6 +47,10 @@
    
 </body>
 <script>
+$(document).ready(function(e) {
+    $('#video-on').addClass('selected');
+	$('.cancel-button').show();
+});
 
  var waterParams;
  var clickNum=0;
@@ -232,6 +236,7 @@ function drawRectangle(node){
 	 }
 function play2(node)
   {
+	  console.log("到达");
 	  clearCanvas();
 	  if(player!=null)
 	  {
@@ -248,7 +253,8 @@ function play2(node)
 	  $("#video-ananly").addClass('live');
 	  	var trr= $("<canvas name='upview' id='video-ananly' class='view-object player' type='application/x-upview'>"+"</canvas>");
        $('.video').append(trr);
-	   
+	     $('#video-on').addClass('selected');
+	 $('.cancel-button').show();
 	    var  plugin=$("#video-ananly")[0];
 	    var opt= {};
 		opt.id = node[0].id; 

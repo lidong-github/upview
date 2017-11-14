@@ -137,61 +137,35 @@ $(function(){
 	
 	})
 
-function isIE(show){
+function isIE(){
 		var pp = document.getElementById("checkCanvas");
 		var unde = typeof(pp.getContext);
-		if(show){
+		
 			var fla = false;
 			var plugin=document.getElementById("checkObject");
-			if(!!window.ActiveXObject || "ActiveXObject" in window){
+			if(!!window.ActiveXObject || "ActiveXObject" in window){//判断是不是IE
 				if(typeof(plugin.version) == "undefined" && unde == 'undefined') {
-					alert("您没有安装upview视频控件，导致不能播放视频，请先下载upvie控件！");	
+					alert("您没有安装upview视频控件，导致不能播放视频，请先下载upview控件！");	
 					window.location.href = "/UpViewWeb.exe";
 				}else{
 					fla = true;
 				}
 			}else{
 				//监测ie外浏览器安装插件				
-				if(navigator.plugins){
-					for(var i=0; i<navigator.plugins.length; i++){
+				if(navigator.plugins){//plugins[]包含安装插件的集合。ie4不支持插件与plugin对象
+					for(var i=0; i<navigator.plugins.length; i++){//判断是否已经安装了upview插件
 						if(navigator.plugins[i].name.toLowerCase().indexOf("upview")>=0){
 							fla = true;
 						}
 					}	
 				}
 				if(fla == false && unde == 'undefined'){
-					alert("您没有安装upview视频控件，导致不能播放视频，请先下载upvie控件！");		
-					window.location.href = "/UpViewWeb.exe";
-				}
-			}	
-			return fla;	
-		}else{
-			var fla = false;
-			var plugin=document.getElementById("checkObject");
-			if(!!window.ActiveXObject || "ActiveXObject" in window){
-				if(typeof(plugin.version) == "undefined" && unde == 'undefined') {
-					alert("您没有安装upview视频控件，导致不能播放视频，请先下载upvie控件！");	
-					window.location.href = "/UpViewWeb.exe";
-				}else{
-					fla = true;
-				}
-			}else{
-				//监测ie外浏览器安装插件
-				if(navigator.plugins){
-					for(var i=0; i<navigator.plugins.length; i++){
-						if(navigator.plugins[i].name.toLowerCase().indexOf("upview")>=0){
-							fla = true;
-						}
-					}	
-				}
-				if(fla == false && unde == 'undefined'){
-					alert("您没有安装upview视频控件，导致不能播放视频，请先下载upvie控件！");		
+					alert("您没有安装upview视频控件，导致不能播放视频，upview控件！");		
 					window.location.href = "/UpViewWeb.exe";
 				}
 			}	
 			return fla;	
 		}
-	}
 $(window).resize(function() {
 	setHeight();
 	})
